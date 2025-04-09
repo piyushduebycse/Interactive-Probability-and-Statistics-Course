@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1: Introduction to Probability</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+        .module-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .nav-btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .nav-btn:hover {
+            background-color: #2980b9;
+        }
+        .nav-btn.home {
+            background-color: #2c3e50;
+        }
+        .nav-btn.home:hover {
+            background-color: #1a252f;
+        }
+        .content-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .content-section h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .example {
+            background-color: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .example h3 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+        .formula {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .interactive-link {
+            display: block;
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            text-align: center;
+            margin: 20px 0;
+            transition: background-color 0.3s ease;
+        }
+        .interactive-link:hover {
+            background-color: #219653;
+        }
+        .practice-section {
+            background-color: #f0f7ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .practice-section h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .practice-problem {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #d1e0ff;
+        }
+        .practice-problem:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .solution {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e8f4fc;
+            border-radius: 4px;
+            display: none;
+        }
+        .show-solution {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+        .show-solution:hover {
+            background-color: #7f8c8d;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 40px;
+        }
+        .key-concept {
+            background-color: #f9f3e8;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .key-concept h3 {
+            margin-top: 0;
+            color: #d35400;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Module 1: Introduction to Probability</h1>
+    </header>
+
+    <div class="module-nav">
+        <a href="../index.html" class="nav-btn home">Course Home</a>
+        <span>Module 1 of 6</span>
+        <a href="module2_content.html" class="nav-btn">Next Module →</a>
+    </div>
+
+    <div class="content-section">
+        <h2>Learning Objectives</h2>
+        <p>By the end of this module, you will be able to:</p>
+        <ul>
+            <li>Understand the fundamental concepts of probability</li>
+            <li>Define sample spaces, events, and outcomes</li>
+            <li>Apply the basic probability axioms</li>
+            <li>Calculate probabilities using different approaches</li>
+            <li>Understand conditional probability and independence</li>
+            <li>Apply Bayes' theorem to solve probability problems</li>
+        </ul>
+    </div>
+
+    <div class="content-section">
+        <h2>1.1 Introduction to Probability</h2>
+        <p>Probability is the branch of mathematics that deals with the study of randomness and uncertainty. It provides a framework for modeling and analyzing random phenomena, making it an essential tool in various fields such as statistics, science, engineering, finance, and everyday decision-making.</p>
+        
+        <p>The concept of probability emerged from the study of games of chance in the 17th century. Mathematicians like Blaise Pascal and Pierre de Fermat developed the early foundations of probability theory while analyzing gambling problems. Today, probability theory has evolved into a sophisticated mathematical discipline with applications far beyond its origins.</p>
+        
+        <div class="key-concept">
+            <h3>What is Probability?</h3>
+            <p>Probability is a measure of the likelihood that an event will occur. It is expressed as a number between 0 and 1, where:</p>
+            <ul>
+                <li>A probability of 0 indicates impossibility (the event will not occur)</li>
+                <li>A probability of 1 indicates certainty (the event will occur)</li>
+                <li>A probability between 0 and 1 indicates the degree of likelihood (higher values indicate more likely events)</li>
+            </ul>
+        </div>
+        
+        <p>There are three main interpretations of probability:</p>
+        
+        <ol>
+            <li><strong>Classical (theoretical) probability:</strong> Based on equally likely outcomes. If an experiment has n equally likely outcomes and m of these outcomes correspond to event A, then P(A) = m/n.</li>
+            <li><strong>Relative frequency (empirical) probability:</strong> Based on the observed frequency of an event. If an experiment is repeated N times and event A occurs m times, then P(A) ≈ m/N as N becomes very large.</li>
+            <li><strong>Subjective probability:</strong> Based on personal judgment or belief about the likelihood of an event, often used when classical or frequency approaches are not applicable.</li>
+        </ol>
+        
+        <div class="example">
+            <h3>Example: Different Probability Approaches</h3>
+            <p><strong>Classical approach:</strong> When rolling a fair six-sided die, the probability of getting a 3 is 1/6 because there are six equally likely outcomes, and only one of them is a 3.</p>
+            <p><strong>Frequency approach:</strong> If you roll a die 600 times and observe that a 3 appears 98 times, the empirical probability would be 98/600 ≈ 0.163.</p>
+            <p><strong>Subjective approach:</strong> A weather forecaster might say there's a 70% chance of rain tomorrow based on their expertise and analysis of weather patterns.</p>
+        </div>
+        
+        <a href="../interactive_elements/coin_flip_simulator.html" class="interactive-link">Try the Interactive Coin Flip Simulator</a>
+    </div>
+
+    <div class="content-section">
+        <h2>1.2 Sample Spaces, Events, and Outcomes</h2>
+        
+        <p>To formalize probability, we need to define some fundamental concepts:</p>
+        
+        <div class="key-concept">
+            <h3>Sample Space</h3>
+            <p>The sample space (denoted by S or Ω) is the set of all possible outcomes of a random experiment. Each outcome in the sample space is a complete, detailed result of the experiment.</p>
+        </div>
+        
+        <div class="key-concept">
+            <h3>Event</h3>
+            <p>An event is a subset of the sample space, representing a collection of outcomes. Events are typically denoted by capital letters (A, B, C, etc.).</p>
+        </div>
+        
+        <div class="key-concept">
+            <h3>Outcome</h3>
+            <p>An outcome is a single result of an experiment. It is an element of the sample space.</p>
+        </div>
+        
+        <div class="example">
+            <h3>Example: Rolling a Die</h3>
+            <p><strong>Sample space:</strong> S = {1, 2, 3, 4, 5, 6}</p>
+            <p><strong>Event A:</strong> Getting an even number = {2, 4, 6}</p>
+            <p><strong>Event B:</strong> Getting a number greater than 4 = {5, 6}</p>
+            <p><strong>Outcome:</strong> Rolling a 3 is a single outcome in the sample space</p>
+        </div>
+        
+        <p>Events can be combined using set operations:</p>
+        
+        <ul>
+            <li><strong>Union (A ∪ B):</strong> The event that either A or B (or both) occur</li>
+            <li><strong>Intersection (A ∩ B):</strong> The event that both A and B occur</li>
+            <li><strong>Complement (A'):</strong> The event that A does not occur</li>
+        </ul>
+        
+        <div class="example">
+            <h3>Example: Set Operations with Events</h3>
+            <p>Using the die example above:</p>
+            <p><strong>A ∪ B:</strong> Getting an even number or a number greater than 4 = {2, 4, 5, 6}</p>
+            <p><strong>A ∩ B:</strong> Getting an even number greater than 4 = {6}</p>
+            <p><strong>A':</strong> Not getting an even number = {1, 3, 5}</p>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>1.3 Probability Axioms and Rules</h2>
+        
+        <p>Probability theory is built on three fundamental axioms, proposed by Andrey Kolmogorov in 1933:</p>
+        
+        <div class="formula">
+            <p><strong>Axiom 1:</strong> For any event A, P(A) ≥ 0</p>
+            <p><strong>Axiom 2:</strong> P(S) = 1, where S is the sample space</p>
+            <p><strong>Axiom 3:</strong> For mutually exclusive events A₁, A₂, A₃, ..., P(A₁ ∪ A₂ ∪ A₃ ∪ ...) = P(A₁) + P(A₂) + P(A₃) + ...</p>
+        </div>
+        
+        <p>From these axioms, we can derive several important probability rules:</p>
+        
+        <div class="formula">
+            <p><strong>Complement Rule:</strong> P(A') = 1 - P(A)</p>
+            <p><strong>Addition Rule:</strong> P(A ∪ B) = P(A) + P(B) - P(A ∩ B)</p>
+            <p><strong>Multiplication Rule:</strong> P(A ∩ B) = P(A) × P(B|A) = P(B) × P(A|B)</p>
+        </div>
+        
+        <div class="example">
+            <h3>Example: Applying Probability Rules</h3>
+            <p>In a standard deck of 52 cards, what is the probability of drawing either a heart or a face card?</p>
+            <p>Let A = drawing a heart, and B = drawing a face card.</p>
+            <p>P(A) = 13/52 = 1/4 (there are 13 hearts in a deck)</p>
+            <p>P(B) = 12/52 = 3/13 (there are 12 face cards: jacks, queens, and kings)</p>
+            <p>P(A ∩ B) = 3/52 (there are 3 face cards that are hearts: jack, queen, and king of hearts)</p>
+            <p>Using the addition rule: P(A ∪ B) = P(A) + P(B) - P(A ∩ B) = 1/4 + 3/13 - 3/52 = 13/52 + 12/52 - 3/52 = 22/52 = 11/26</p>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>1.4 Conditional Probability and Independence</h2>
+        
+        <div class="key-concept">
+            <h3>Conditional Probability</h3>
+            <p>Conditional probability is the probability of an event occurring given that another event has already occurred. It is denoted as P(A|B), read as "the probability of A given B."</p>
+        </div>
+        
+        <div class="formula">
+            <p><strong>Conditional Probability Formula:</strong></p>
+            <p>P(A|B) = P(A ∩ B) / P(B), where P(B) > 0</p>
+        </div>
+        
+        <div class="example">
+            <h3>Example: Conditional Probability</h3>
+            <p>In a class of 30 students, 18 are taking mathematics, 15 are taking physics, and 10 are taking both subjects.</p>
+            <p>If a student is selected at random, what is the probability that the student is taking mathematics given that they are taking physics?</p>
+            <p>Let M = student takes mathematics, and P = student takes physics.</p>
+            <p>We want to find P(M|P).</p>
+            <p>P(M ∩ P) = 10/30 = 1/3 (probability of taking both subjects)</p>
+            <p>P(P) = 15/30 = 1/2 (probability of taking physics)</p>
+            <p>P(M|P) = P(M ∩ P) / P(P) = (1/3) / (1/2) = 2/3</p>
+            <p>So, the probability that a student takes mathematics given that they take physics is 2/3.</p>
+        </div>
+        
+        <div class="key-concept">
+            <h3>Independence</h3>
+            <p>Two events A and B are independent if the occurrence of one does not affect the probability of the other. Mathematically, A and B are independent if and only if:</p>
+        </div>
+        
+        <div class="formula">
+            <p><strong>Independence Condition:</strong></p>
+            <p>P(A ∩ B) = P(A) × P(B)</p>
+            <p>Equivalently, P(A|B) = P(A) or P(B|A) = P(B)</p>
+        </div>
+        
+        <div class="example">
+            <h3>Example: Independence</h3>
+            <p>When flipping a fair coin twice, let A = getting heads on the first flip, and B = getting heads on the second flip.</p>
+            <p>P(A) = 1/2 and P(B) = 1/2</p>
+            <p>P(A ∩ B) = 1/4 (probability of getting heads on both flips)</p>
+            <p>Since P(A ∩ B) = P(A) × P(B) = 1/2 × 1/2 = 1/4, events A and B are independent.</p>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>1.5 Bayes' Theorem</h2>
+        
+        <p>Bayes' theorem provides a way to update probabilities based on new evidence. It is a fundamental result in probability theory with wide-ranging applications.</p>
+        
+        <div class="formula">
+            <p><strong>Bayes' Theorem:</strong></p>
+            <p>P(A|B) = [P(B|A) × P(A)] / P(B)</p>
+            <p>Where P(B) = P(B|A) × P(A) + P(B|A') × P(A')</p>
+        </div>
+        
+        <div class="example">
+            <h3>Example: Bayes' Theorem</h3>
+            <p>A medical test for a disease has the following characteristics:</p>
+            <ul>
+                <li>The test correctly identifies 95% of people who have the disease (sensitivity: P(positive test | disease) = 0.95)</li>
+                <li>The test correctly identifies 90% of people who don't have the disease (specificity: P(negative test | no disease) = 0.90)</li>
+                <li>The disease affects 1% of the population (prevalence: P(disease) = 0.01)</li>
+            </ul>
+            <p>If a person tests positive, what is the probability that they actually have the disease?</p>
+            <p>We want to find P(disease | positive test).</p>
+            <p>Using Bayes' theorem:</p>
+            <p>P(disease | positive test) = [P(positive test | disease) × P(disease)] / P(positive test)</p>
+            <p>P(positive test) = P(positive test | disease) × P(disease) + P(positive test | no disease) × P(no disease)</p>
+            <p>P(positive test | no disease) = 1 - P(negative test | no disease) = 1 - 0.90 = 0.10</p>
+            <p>P(no disease) = 1 - P(disease) = 1 - 0.01 = 0.99</p>
+            <p>P(positive test) = 0.95 × 0.01 + 0.10 × 0.99 = 0.0095 + 0.099 = 0.1085</p>
+            <p>P(disease | positive test) = (0.95 × 0.01) / 0.1085 ≈ 0.0875</p>
+            <p>So, the probability that a person who tests positive actually has the disease is only about 8.75%. This counterintuitive result demonstrates the importance of considering base rates in probability calculations.</p>
+        </div>
+    </div>
+
+    <div class="practice-section">
+        <h3>Practice Problems</h3>
+        
+        <div class="practice-problem">
+            <p><strong>Problem 1:</strong> A bag contains 5 red marbles, 3 blue marbles, and 2 green marbles. If you draw one marble at random, what is the probability of drawing a blue marble?</p>
+            <button class="show-solution" onclick="toggleSolution('solution1')">Show Solution</button>
+            <div class="solution" id="solution1">
+                <p>Total number of marbles = 5 + 3 + 2 = 10</p>
+                <p>Number of blue marbles = 3</p>
+                <p>P(blue) = 3/10 = 0.3</p>
+            </div>
+        </div>
+        
+        <div class="practice-problem">
+            <p><strong>Problem 2:</strong> In a standard deck of 52 cards, what is the probability of drawing a king or a heart?</p>
+            <button class="show-solution" onclick="toggleSolution('solution2')">Show Solution</button>
+            <div class="solution" id="solution2">
+                <p>Let K = drawing a king, and H = drawing a heart.</p>
+                <p>P(K) = 4/52 = 1/13 (there are 4 kings in a deck)</p>
+                <p>P(H) = 13/52 = 1/4 (there are 13 hearts in a deck)</p>
+                <p>P(K ∩ H) = 1/52 (there is 1 king of hearts)</p>
+                <p>Using the addition rule: P(K ∪ H) = P(K) + P(H) - P(K ∩ H) = 1/13 + 1/4 - 1/52 = 4/52 + 13/52 - 1/52 = 16/52 = 4/13</p>
+            </div>
+        </div>
+        
+        <div class="practice-problem">
+            <p><strong>Problem 3:</strong> If P(A) = 0.6, P(B) = 0.4, and P(A ∩ B) = 0.2, find P(A ∪ B) and determine whether A and B are independent.</p>
+            <button class="show-solution" onclick="toggleSolution('solution3')">Show Solution</button>
+            <div class="solution" id="solution3">
+                <p>Using the addition rule: P(A ∪ B) = P(A) + P(B) - P(A ∩ B) = 0.6 + 0.4 - 0.2 = 0.8</p>
+                <p>To check independence, we need to verify if P(A ∩ B) = P(A) × P(B)</p>
+                <p>P(A) × P(B) = 0.6 × 0.4 = 0.24</p>
+                <p>Since P(A ∩ B) = 0.2 ≠ 0.24 = P(A) × P(B), events A and B are not independent.</p>
+            </div>
+        </div>
+        
+        <div class="practice-problem">
+            <p><strong>Problem 4:</strong> In a certain city, 60% of the days are sunny. The weather forecast predicts "sunny" with 80% accuracy (meaning it correctly predicts sunny days 80% of the time and incorrectly predicts sunny days 20% of the time when it's not sunny). If the forecast predicts a sunny day, what is the probability that it will actually be sunny?</p>
+            <button class="show-solution" onclick="toggleSolution('solution4')">Show Solution</button>
+            <div class="solution" id="solution4">
+                <p>Let S = the day is sunny, and F = the forecast predicts sunny.</p>
+                <p>We want to find P(S|F).</p>
+                <p>Given information:</p>
+                <p>P(S) = 0.6 (60% of days are sunny)</p>
+                <p>P(F|S) = 0.8 (80% accuracy for sunny days)</p>
+                <p>P(F|S') = 0.2 (20% false positive rate)</p>
+                <p>Using Bayes' theorem:</p>
+                <p>P(S|F) = [P(F|S) × P(S)] / P(F)</p>
+                <p>P(F) = P(F|S) × P(S) + P(F|S') × P(S')</p>
+                <p>P(S') = 1 - P(S) = 1 - 0.6 = 0.4</p>
+                <p>P(F) = 0.8 × 0.6 + 0.2 × 0.4 = 0.48 + 0.08 = 0.56</p>
+                <p>P(S|F) = (0.8 × 0.6) / 0.56 = 0.48 / 0.56 ≈ 0.857</p>
+                <p>So, the probability that it will actually be sunny given that the forecast predicts sunny is about 85.7%.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="module-nav">
+        <a href="../index.html" class="nav-btn home">Course Home</a>
+        <a href="../interactive_elements/interactive_quiz.html" class="nav-btn">Take Module Quiz</a>
+        <a href="module2_content.html" class="nav-btn">Next Module →</a>
+    </div>
+
+    <footer>
+        <p>© 2025 Interactive Probability and Statistics Course | Module 1: Introduction to Probability</p>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            if (solution.style.display === "block") {
+                solution.style.display = "none";
+            } else {
+                solution.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

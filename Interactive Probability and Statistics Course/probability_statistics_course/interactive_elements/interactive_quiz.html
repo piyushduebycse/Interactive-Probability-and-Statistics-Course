@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .quiz-container {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .quiz-title {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .quiz-progress {
+            font-size: 1rem;
+            color: #666;
+        }
+        .question-container {
+            margin-bottom: 20px;
+        }
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            padding: 10px 15px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+        .option.selected {
+            background-color: #e6f7ff;
+            border-color: #91d5ff;
+        }
+        .option.correct {
+            background-color: #f6ffed;
+            border-color: #b7eb8f;
+        }
+        .option.incorrect {
+            background-color: #fff1f0;
+            border-color: #ffa39e;
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .feedback.correct {
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+        .feedback.incorrect {
+            background-color: #fff1f0;
+            border: 1px solid #ffa39e;
+            color: #f5222d;
+        }
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            display: none;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .next-btn, .submit-btn {
+            background-color: #1890ff;
+            color: white;
+        }
+        .next-btn:hover, .submit-btn:hover {
+            background-color: #096dd9;
+        }
+        .prev-btn {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .prev-btn:hover {
+            background-color: #d9d9d9;
+        }
+        .results-container {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .results-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1890ff;
+        }
+        .results-feedback {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+        }
+        .results-list {
+            margin-top: 20px;
+        }
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item.correct {
+            border-left: 3px solid #52c41a;
+        }
+        .result-item.incorrect {
+            border-left: 3px solid #f5222d;
+        }
+        .quiz-selector {
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            width: 100%;
+        }
+        .restart-btn {
+            background-color: #52c41a;
+            color: white;
+            margin-top: 20px;
+        }
+        .restart-btn:hover {
+            background-color: #389e0d;
+        }
+        .math {
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .formula {
+            font-style: italic;
+            padding: 0 5px;
+        }
+        .image-container {
+            margin: 10px 0;
+            text-align: center;
+        }
+        .image-container img {
+            max-width: 100%;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Probability & Statistics Quiz</h1>
+    
+    <div class="container">
+        <div class="quiz-selector">
+            <label for="quiz-select">Select a quiz topic:</label>
+            <select id="quiz-select">
+                <option value="probability">Module 1: Probability Concepts</option>
+                <option value="random-variables">Module 2: Random Variables and Distributions</option>
+                <option value="descriptive">Module 3: Descriptive Statistics</option>
+                <option value="inferential">Module 4: Inferential Statistics</option>
+                <option value="hypothesis">Module 5: Hypothesis Testing</option>
+                <option value="regression">Module 6: Regression Analysis</option>
+            </select>
+            <button id="start-quiz-btn" class="next-btn" style="margin-top: 10px;">Start Quiz</button>
+        </div>
+        
+        <div id="quiz-container" class="quiz-container" style="display: none;">
+            <div class="quiz-header">
+                <h2 class="quiz-title" id="quiz-title">Quiz Title</h2>
+                <div class="quiz-progress">Question <span id="current-question">1</span> of <span id="total-questions">10</span></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question" id="question-text">Question text goes here?</div>
+                <div class="image-container" id="question-image" style="display: none;">
+                    <!-- Image will be inserted here if needed -->
+                </div>
+                <div class="options" id="options-container">
+                    <!-- Options will be inserted here -->
+                </div>
+                <div class="feedback" id="feedback"></div>
+                <div class="explanation" id="explanation"></div>
+            </div>
+            
+            <div class="controls">
+                <button id="prev-btn" class="prev-btn" disabled>Previous</button>
+                <button id="submit-btn" class="submit-btn">Submit Answer</button>
+                <button id="next-btn" class="next-btn" disabled>Next</button>
+            </div>
+        </div>
+        
+        <div id="results-container" class="results-container">
+            <div class="results-header">
+                <h2>Quiz Results</h2>
+                <div class="score">Score: <span id="score">0</span>/<span id="total-score">0</span></div>
+                <div class="score">Percentage: <span id="percentage">0%</span></div>
+            </div>
+            
+            <div class="results-feedback" id="results-feedback">
+                <!-- Feedback based on score will be inserted here -->
+            </div>
+            
+            <h3>Question Summary</h3>
+            <div class="results-list" id="results-list">
+                <!-- Results summary will be inserted here -->
+            </div>
+            
+            <button id="restart-btn" class="restart-btn">Try Another Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data for each module
+        const quizzes = {
+            "probability": {
+                title: "Probability Concepts Quiz",
+                questions: [
+                    {
+                        question: "If P(A) = 0.4 and P(B) = 0.3 and A and B are mutually exclusive events, what is P(A ∪ B)?",
+                        options: ["0.12", "0.7", "0.1", "0.4"],
+                        correctAnswer: 1,
+                        explanation: "For mutually exclusive events, P(A ∪ B) = P(A) + P(B). So P(A ∪ B) = 0.4 + 0.3 = 0.7."
+                    },
+                    {
+                        question: "A bag contains 5 red marbles, 3 blue marbles, and 2 green marbles. If you draw one marble at random, what is the probability of drawing a blue marble?",
+                        options: ["0.2", "0.3", "0.5", "0.8"],
+                        correctAnswer: 1,
+                        explanation: "There are 3 blue marbles out of 10 total marbles. So the probability is 3/10 = 0.3."
+                    },
+                    {
+                        question: "If P(A) = 0.6 and P(B) = 0.4 and P(A ∩ B) = 0.2, what is P(A ∪ B)?",
+                        options: ["0.8", "0.24", "0.4", "0.8"],
+                        correctAnswer: 0,
+                        explanation: "Using the addition rule: P(A ∪ B) = P(A) + P(B) - P(A ∩ B) = 0.6 + 0.4 - 0.2 = 0.8."
+                    },
+                    {
+                        question: "What is the probability of rolling a sum of 7 with two fair dice?",
+                        options: ["1/6", "1/12", "1/36", "7/36"],
+                        correctAnswer: 0,
+                        explanation: "There are 6 ways to roll a sum of 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1). There are 36 possible outcomes when rolling two dice. So the probability is 6/36 = 1/6."
+                    },
+                    {
+                        question: "If events A and B are independent, and P(A) = 0.3 and P(B) = 0.4, what is P(A ∩ B)?",
+                        options: ["0.12", "0.7", "0.1", "0.7"],
+                        correctAnswer: 0,
+                        explanation: "For independent events, P(A ∩ B) = P(A) × P(B) = 0.3 × 0.4 = 0.12."
+                    },
+                    {
+                        question: "What is the complement of event A?",
+                        options: ["The probability that A will occur", "The probability that A will not occur", "The intersection of A with another event", "The union of A with another event"],
+                        correctAnswer: 1,
+                        explanation: "The complement of event A, denoted A', is the event that A does not occur."
+                    },
+                    {
+                        question: "If P(A) = 0.7, what is P(A')?",
+                        options: ["0.7", "0.3", "1.7", "0"],
+                        correctAnswer: 1,
+                        explanation: "P(A') = 1 - P(A) = 1 - 0.7 = 0.3."
+                    },
+                    {
+                        question: "In a standard deck of 52 cards, what is the probability of drawing a face card (Jack, Queen, or King)?",
+                        options: ["12/52", "3/13", "1/4", "All of the above"],
+                        correctAnswer: 3,
+                        explanation: "There are 12 face cards in a standard deck (3 in each suit). So the probability is 12/52 = 3/13 = 1/4."
+                    },
+                    {
+                        question: "What is the conditional probability P(A|B)?",
+                        options: ["The probability of A given that B has occurred", "The probability of B given that A has occurred", "The probability of both A and B occurring", "The probability of either A or B occurring"],
+                        correctAnswer: 0,
+                        explanation: "P(A|B) is the conditional probability of event A occurring given that event B has occurred."
+                    },
+                    {
+                        question: "If P(A|B) = 0.6 and P(B) = 0.5, what is P(A ∩ B)?",
+                        options: ["0.3", "0.6", "1.1", "0.1"],
+                        correctAnswer: 0,
+                        explanation: "Using the formula P(A|B) = P(A ∩ B) / P(B), we get P(A ∩ B) = P(A|B) × P(B) = 0.6 × 0.5 = 0.3."
+                    }
+                ]
+            },
+            "random-variables": {
+                title: "Random Variables and Distributions Quiz",
+                questions: [
+                    {
+                        question: "What is a random variable?",
+                        options: [
+                            "A variable that changes randomly over time",
+                            "A function that assigns a numerical value to each outcome in a sample space",
+                            "A variable with no fixed pattern",
+                            "A variable that follows a normal distribution"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "A random variable is a function that assigns a numerical value to each outcome in a sample space."
+                    },
+                    {
+                        question: "Which of the following is a discrete random variable?",
+                        options: [
+                            "Height of a randomly selected person",
+                            "Time to complete a task",
+                            "Number of customers entering a store in an hour",
+                            "Weight of a randomly selected apple"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "The number of customers is a discrete random variable because it can only take specific values (0, 1, 2, etc.) with no values in between."
+                    },
+                    {
+                        question: "What is the expected value of a discrete random variable X?",
+                        options: [
+                            "The most likely value of X",
+                            "The median value of X",
+                            "The weighted average of all possible values of X",
+                            "The maximum value of X"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "The expected value E(X) is the weighted average of all possible values, where the weights are the probabilities: E(X) = ∑x·P(X=x)."
+                    },
+                    {
+                        question: "For a binomial random variable with n = 10 and p = 0.3, what is the expected value?",
+                        options: ["3", "0.3", "7", "10"],
+                        correctAnswer: 0,
+                        explanation: "For a binomial distribution, E(X) = n·p = 10 × 0.3 = 3."
+                    },
+                    {
+                        question: "What is the variance of a random variable X?",
+                        options: [
+                            "E(X)",
+                            "E(X²)",
+                            "E(X²) - [E(X)]²",
+                            "√E(X²) - [E(X)]²"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "The variance of X is Var(X) = E(X²) - [E(X)]², which measures the expected squared deviation from the mean."
+                    },
+                    {
+                        question: "Which distribution is often used to model the number of successes in a fixed number of independent trials?",
+                        options: ["Normal distribution", "Poisson distribution", "Exponential distribution", "Binomial distribution"],
+                        correctAnswer: 3,
+                        explanation: "The binomial distribution models the number of successes in a fixed number of independent trials, each with the same probability of success."
+                    },
+                    {
+                        question: "Which distribution is often used to model the number of events occurring in a fixed interval of time or space?",
+                        options: ["Normal distribution", "Poisson distribution", "Exponential distribution", "Binomial distribution"],
+                        correctAnswer: 1,
+                        explanation: "The Poisson distribution models the number of events occurring in a fixed interval of time or space, assuming these events occur independently and at a constant average rate."
+                    },
+                    {
+                        question: "What is the standard deviation of a random variable X?",
+                        options: ["E(X)", "Var(X)", "√Var(X)", "E(X²)"],
+                        correctAnswer: 2,
+                        explanation: "The standard deviation of X is σ = √Var(X), which measures the average deviation from the mean."
+                    },
+                    {
+                        question: "For a normal distribution, approximately what percentage of values fall within one standard deviation of the mean?",
+                        options: ["50%", "68%", "95%", "99.7%"],
+                        correctAnswer: 1,
+                        explanation: "For a normal distribution, approximately 68% of values fall within one standard deviation of the mean."
+                    },
+                    {
+                        question: "If X follows a normal distribution with mean μ = 10 and standard deviation σ = 2, what is P(X > 12)?",
+                        options: ["0.5", "0.16", "0.84", "0.32"],
+                        correctAnswer: 1,
+                        explanation: "We need to find P(X > 12) = P(Z > (12-10)/2) = P(Z > 1) = 1 - P(Z < 1) = 1 - 0.84 = 0.16."
+                    }
+                ]
+            },
+            "descriptive": {
+                title: "Descriptive Statistics Quiz",
+                questions: [
+                    {
+                        question: "Which measure of central tendency is most affected by extreme values?",
+                        options: ["Mean", "Median", "Mode", "Midrange"],
+                        correctAnswer: 0,
+                        explanation: "The mean is most affected by extreme values (outliers) because it takes into account the actual value of each data point."
+                    },
+                    {
+                        question: "For the data set {2, 5, 5, 8, 10, 12}, what is the mode?",
+                        options: ["5", "7", "8", "There is no mode"],
+                        correctAnswer: 0,
+                        explanation: "The mode is the most frequently occurring value in the data set. In this case, 5 appears twice while all other values appear only once."
+                    },
+                    {
+                        question: "What is the median of the data set {3, 7, 8, 9, 12}?",
+                        options: ["3", "7", "8", "9"],
+                        correctAnswer: 2,
+                        explanation: "The median is the middle value when the data is arranged in order. Since there are 5 values, the median is the 3rd value, which is 8."
+                    },
+                    {
+                        question: "Which of the following is a measure of dispersion?",
+                        options: ["Mean", "Median", "Mode", "Standard deviation"],
+                        correctAnswer: 3,
+                        explanation: "Standard deviation is a measure of dispersion, which quantifies how spread out the data is from the mean."
+                    },
+                    {
+                        question: "What is the range of the data set {10, 15, 20, 25, 30}?",
+                        options: ["5", "10", "20", "30"],
+                        correctAnswer: 2,
+                        explanation: "The range is the difference between the maximum and minimum values: 30 - 10 = 20."
+                    },
+                    {
+                        question: "If a distribution has a positive skewness, what does this indicate?",
+                        options: [
+                            "The mean is greater than the median",
+                            "The mean is less than the median",
+                            "The mean equals the median",
+                            "The mode is greater than the mean"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "A positively skewed distribution has a longer tail on the right side, which pulls the mean to the right of the median."
+                    },
+                    {
+                        question: "What is the interquartile range (IQR) used for?",
+                        options: [
+                            "To measure the center of the data",
+                            "To measure the spread of the middle 50% of the data",
+                            "To identify the most frequent value",
+                            "To calculate the mean"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "The interquartile range (IQR) is the difference between the third quartile (Q3) and the first quartile (Q1), and it measures the spread of the middle 50% of the data."
+                    },
+                    {
+                        question: "Which visualization is best for showing the distribution of a continuous variable?",
+                        options: ["Pie chart", "Bar chart", "Histogram", "Scatter plot"],
+                        correctAnswer: 2,
+                        explanation: "A histogram is best for showing the distribution of a continuous variable because it groups the data into bins and shows the frequency of values in each bin."
+                    },
+                    {
+                        question: "What does a box plot (box-and-whisker plot) show?",
+                        options: [
+                            "Only the mean and standard deviation",
+                            "The five-number summary (minimum, Q1, median, Q3, maximum)",
+                            "The frequency distribution",
+                            "The correlation between two variables"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "A box plot shows the five-number summary: minimum, first quartile (Q1), median, third quartile (Q3), and maximum. It can also show outliers."
+                    },
+                    {
+                        question: "For the data set {2, 4, 6, 8, 10}, what is the variance?",
+                        options: ["2", "4", "8", "10"],
+                        correctAnswer: 2,
+                        explanation: "The mean is (2+4+6+8+10)/5 = 6. The variance is [(2-6)² + (4-6)² + (6-6)² + (8-6)² + (10-6)²]/5 = (16+4+0+4+16)/5 = 40/5 = 8."
+                    }
+                ]
+            },
+            "inferential": {
+                title: "Inferential Statistics Quiz",
+                questions: [
+                    {
+                        question: "What is the main purpose of inferential statistics?",
+                        options: [
+                            "To organize and summarize data",
+                            "To make predictions and draw conclusions about a population based on a sample",
+                            "To collect data from a population",
+                            "To create visual representations of data"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "Inferential statistics uses sample data to make predictions, estimates, or decisions about a larger population."
+                    },
+                    {
+                        question: "What is a sampling distribution?",
+                        options: [
+                            "The distribution of the population",
+                            "The distribution of the sample",
+                            "The distribution of a statistic calculated from repeated samples",
+                            "The distribution of errors in sampling"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "A sampling distribution is the probability distribution of a statistic (like the sample mean) calculated from repeated samples of the same size from the same population."
+                    },
+                    {
+                        question: "What does the Central Limit Theorem state?",
+                        options: [
+                            "All populations are normally distributed",
+                            "The sampling distribution of the sample mean approaches a normal distribution as the sample size increases",
+                            "The sample mean equals the population mean",
+                            "The standard deviation decreases as sample size increases"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "The Central Limit Theorem states that the sampling distribution of the sample mean approaches a normal distribution as the sample size increases, regardless of the shape of the population distribution."
+                    },
+                    {
+                        question: "What is a confidence interval?",
+                        options: [
+                            "A range of values that is likely to contain the population parameter",
+                            "The probability that a sample statistic equals the population parameter",
+                            "The difference between the sample statistic and the population parameter",
+                            "The range of values in the sample"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "A confidence interval is a range of values that is likely to contain the unknown population parameter with a specified level of confidence."
+                    },
+                    {
+                        question: "What happens to the width of a confidence interval as the confidence level increases?",
+                        options: [
+                            "It decreases",
+                            "It increases",
+                            "It remains the same",
+                            "It becomes zero"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "As the confidence level increases (e.g., from 95% to 99%), the width of the confidence interval increases because we need a wider interval to be more confident that it contains the population parameter."
+                    },
+                    {
+                        question: "What is the standard error of the mean?",
+                        options: [
+                            "The standard deviation of the population",
+                            "The standard deviation of the sample",
+                            "The standard deviation of the sampling distribution of the sample mean",
+                            "The difference between the sample mean and the population mean"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "The standard error of the mean is the standard deviation of the sampling distribution of the sample mean. It equals σ/√n, where σ is the population standard deviation and n is the sample size."
+                    },
+                    {
+                        question: "What is the formula for the margin of error in a confidence interval for a population mean?",
+                        options: [
+                            "z × σ",
+                            "z × σ/√n",
+                            "t × s/√n",
+                            "t × s"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "The margin of error for a confidence interval for a population mean is t × s/√n, where t is the critical value from the t-distribution, s is the sample standard deviation, and n is the sample size."
+                    },
+                    {
+                        question: "What happens to the standard error as the sample size increases?",
+                        options: [
+                            "It increases",
+                            "It decreases",
+                            "It remains the same",
+                            "It approaches infinity"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "The standard error decreases as the sample size increases because SE = σ/√n. As n increases, the denominator increases, so the standard error decreases."
+                    },
+                    {
+                        question: "What is the purpose of a t-distribution in inferential statistics?",
+                        options: [
+                            "It is used when the population standard deviation is known",
+                            "It is used when the sample size is very large",
+                            "It is used when the population standard deviation is unknown and estimated by the sample standard deviation",
+                            "It is only used for non-normal populations"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "The t-distribution is used when the population standard deviation is unknown and estimated by the sample standard deviation, especially with small sample sizes."
+                    },
+                    {
+                        question: "What is the relationship between the t-distribution and the normal distribution?",
+                        options: [
+                            "They are identical distributions",
+                            "The t-distribution has heavier tails than the normal distribution",
+                            "The t-distribution has lighter tails than the normal distribution",
+                            "They have different means but the same variance"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "The t-distribution has heavier tails than the normal distribution, reflecting the additional uncertainty when estimating the population standard deviation from the sample."
+                    }
+                ]
+            },
+            "hypothesis": {
+                title: "Hypothesis Testing Quiz",
+                questions: [
+                    {
+                        question: "What is the null hypothesis (H₀)?",
+                        options: [
+                            "The hypothesis that the researcher is trying to prove",
+                            "The hypothesis that states there is no effect or no difference",
+                            "The hypothesis that states there is an effect or a difference",
+                            "The hypothesis that is always rejected"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "The null hypothesis (H₀) is the statement of no effect, no difference, or no relationship. It represents the status quo or the claim to be tested."
+                    },
+                    {
+                        question: "What is a Type I error?",
+                        options: [
+                            "Rejecting a true null hypothesis",
+                            "Failing to reject a false null hypothesis",
+                            "Correctly rejecting a false null hypothesis",
+                            "Correctly failing to reject a true null hypothesis"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "A Type I error occurs when we reject a null hypothesis that is actually true. It's a false positive."
+                    },
+                    {
+                        question: "What is the significance level (α) in hypothesis testing?",
+                        options: [
+                            "The probability of making a Type II error",
+                            "The probability of making a Type I error",
+                            "The probability that the null hypothesis is true",
+                            "The probability that the alternative hypothesis is true"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "The significance level (α) is the probability of making a Type I error, which is rejecting a true null hypothesis."
+                    },
+                    {
+                        question: "What does a p-value represent in hypothesis testing?",
+                        options: [
+                            "The probability that the null hypothesis is true",
+                            "The probability that the alternative hypothesis is true",
+                            "The probability of obtaining a test statistic at least as extreme as the one observed, assuming the null hypothesis is true",
+                            "The probability of making a Type II error"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "The p-value is the probability of obtaining a test statistic at least as extreme as the one observed, assuming the null hypothesis is true."
+                    },
+                    {
+                        question: "If a hypothesis test has a p-value of 0.03 and the significance level is 0.05, what is the conclusion?",
+                        options: [
+                            "Fail to reject the null hypothesis",
+                            "Reject the null hypothesis",
+                            "Accept the alternative hypothesis",
+                            "The test is inconclusive"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "Since the p-value (0.03) is less than the significance level (0.05), we reject the null hypothesis."
+                    },
+                    {
+                        question: "What is the power of a hypothesis test?",
+                        options: [
+                            "The probability of correctly rejecting a false null hypothesis",
+                            "The probability of making a Type I error",
+                            "The probability of making a Type II error",
+                            "The probability of correctly failing to reject a true null hypothesis"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "The power of a hypothesis test is the probability of correctly rejecting a false null hypothesis. It equals 1 - β, where β is the probability of a Type II error."
+                    },
+                    {
+                        question: "Which of the following will increase the power of a hypothesis test?",
+                        options: [
+                            "Decreasing the sample size",
+                            "Decreasing the significance level",
+                            "Increasing the sample size",
+                            "Increasing the probability of a Type II error"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "Increasing the sample size will increase the power of a hypothesis test because it provides more information about the population and reduces the standard error."
+                    },
+                    {
+                        question: "What is a two-tailed test?",
+                        options: [
+                            "A test where the alternative hypothesis states that the parameter is not equal to the specified value",
+                            "A test where the alternative hypothesis states that the parameter is greater than the specified value",
+                            "A test where the alternative hypothesis states that the parameter is less than the specified value",
+                            "A test that uses two different test statistics"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "A two-tailed test is used when the alternative hypothesis states that the parameter is not equal to the specified value (≠). It tests for differences in either direction."
+                    },
+                    {
+                        question: "What test would you use to compare the means of two independent samples when the population standard deviations are unknown?",
+                        options: [
+                            "Z-test",
+                            "Paired t-test",
+                            "Independent samples t-test",
+                            "Chi-square test"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "The independent samples t-test is used to compare the means of two independent samples when the population standard deviations are unknown."
+                    },
+                    {
+                        question: "What test would you use to determine whether there is an association between two categorical variables?",
+                        options: [
+                            "t-test",
+                            "ANOVA",
+                            "Chi-square test of independence",
+                            "Correlation test"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "The chi-square test of independence is used to determine whether there is a significant association between two categorical variables."
+                    }
+                ]
+            },
+            "regression": {
+                title: "Regression Analysis Quiz",
+                questions: [
+                    {
+                        question: "What is the purpose of regression analysis?",
+                        options: [
+                            "To test for differences between means",
+                            "To model the relationship between a dependent variable and one or more independent variables",
+                            "To test for independence between categorical variables",
+                            "To compare variances between groups"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "Regression analysis is used to model the relationship between a dependent variable and one or more independent variables, allowing for prediction and understanding of how the variables are related."
+                    },
+                    {
+                        question: "In the simple linear regression equation Y = β₀ + β₁X + ε, what does β₀ represent?",
+                        options: [
+                            "The slope",
+                            "The y-intercept",
+                            "The error term",
+                            "The correlation coefficient"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "β₀ is the y-intercept, which represents the predicted value of Y when X = 0."
+                    },
+                    {
+                        question: "In the simple linear regression equation Y = β₀ + β₁X + ε, what does β₁ represent?",
+                        options: [
+                            "The slope",
+                            "The y-intercept",
+                            "The error term",
+                            "The correlation coefficient"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "β₁ is the slope, which represents the change in Y for a one-unit increase in X."
+                    },
+                    {
+                        question: "What method is commonly used to estimate the regression coefficients in linear regression?",
+                        options: [
+                            "Maximum likelihood estimation",
+                            "Method of moments",
+                            "Ordinary least squares",
+                            "Bayesian estimation"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "Ordinary least squares (OLS) is the most common method used to estimate regression coefficients in linear regression. It minimizes the sum of squared residuals."
+                    },
+                    {
+                        question: "What does the coefficient of determination (R²) measure in regression analysis?",
+                        options: [
+                            "The slope of the regression line",
+                            "The proportion of variance in the dependent variable explained by the independent variable(s)",
+                            "The correlation between the variables",
+                            "The standard error of the estimate"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "The coefficient of determination (R²) measures the proportion of variance in the dependent variable that is explained by the independent variable(s) in the regression model."
+                    },
+                    {
+                        question: "What is multicollinearity in multiple regression?",
+                        options: [
+                            "When the dependent variable is highly correlated with the independent variables",
+                            "When the independent variables are highly correlated with each other",
+                            "When the residuals are correlated with each other",
+                            "When the model includes multiple dependent variables"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "Multicollinearity occurs when independent variables in a multiple regression model are highly correlated with each other, which can make it difficult to determine the individual effect of each variable."
+                    },
+                    {
+                        question: "What is a residual in regression analysis?",
+                        options: [
+                            "The difference between the observed value and the predicted value",
+                            "The slope of the regression line",
+                            "The y-intercept of the regression line",
+                            "The standard deviation of the dependent variable"
+                        ],
+                        correctAnswer: 0,
+                        explanation: "A residual is the difference between the observed value and the predicted value (Y - Ŷ). It represents the part of the dependent variable that is not explained by the model."
+                    },
+                    {
+                        question: "Which of the following is an assumption of linear regression?",
+                        options: [
+                            "The dependent variable must be categorical",
+                            "The relationship between the dependent and independent variables must be non-linear",
+                            "The residuals should be normally distributed",
+                            "The independent variables must be correlated with each other"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "One of the assumptions of linear regression is that the residuals (errors) should be normally distributed. Other assumptions include linearity, independence, and homoscedasticity."
+                    },
+                    {
+                        question: "What type of regression would you use if the dependent variable is binary (e.g., yes/no, success/failure)?",
+                        options: [
+                            "Linear regression",
+                            "Polynomial regression",
+                            "Logistic regression",
+                            "Ridge regression"
+                        ],
+                        correctAnswer: 2,
+                        explanation: "Logistic regression is used when the dependent variable is binary or categorical. It models the probability of the dependent variable taking a specific value."
+                    },
+                    {
+                        question: "In multiple regression, what does the partial regression coefficient represent?",
+                        options: [
+                            "The total effect of an independent variable on the dependent variable",
+                            "The effect of an independent variable on the dependent variable while holding all other independent variables constant",
+                            "The correlation between two independent variables",
+                            "The proportion of variance explained by all independent variables"
+                        ],
+                        correctAnswer: 1,
+                        explanation: "In multiple regression, a partial regression coefficient represents the effect of an independent variable on the dependent variable while holding all other independent variables constant."
+                    }
+                ]
+            }
+        };
+        
+        // DOM elements
+        const quizSelect = document.getElementById('quiz-select');
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const quizTitle = document.getElementById('quiz-title');
+        const currentQuestionSpan = document.getElementById('current-question');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const questionText = document.getElementById('question-text');
+        const questionImage = document.getElementById('question-image');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackDiv = document.getElementById('feedback');
+        const explanationDiv = document.getElementById('explanation');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const scoreSpan = document.getElementById('score');
+        const totalScoreSpan = document.getElementById('total-score');
+        const percentageSpan = document.getElementById('percentage');
+        const resultsFeedbackDiv = document.getElementById('results-feedback');
+        const resultsListDiv = document.getElementById('results-list');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        // Quiz state
+        let currentQuiz = null;
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let score = 0;
+        
+        // Initialize the quiz
+        function initQuiz() {
+            startQuizBtn.addEventListener('click', startQuiz);
+            submitBtn.addEventListener('click', submitAnswer);
+            prevBtn.addEventListener('click', showPreviousQuestion);
+            nextBtn.addEventListener('click', showNextQuestion);
+            restartBtn.addEventListener('click', resetQuiz);
+        }
+        
+        // Start the quiz
+        function startQuiz() {
+            const quizType = quizSelect.value;
+            currentQuiz = quizzes[quizType];
+            
+            if (!currentQuiz) {
+                alert('Please select a valid quiz topic.');
+                return;
+            }
+            
+            // Initialize quiz state
+            currentQuestions = [...currentQuiz.questions];
+            currentQuestionIndex = 0;
+            userAnswers = Array(currentQuestions.length).fill(null);
+            score = 0;
+            
+            // Update UI
+            quizTitle.textContent = currentQuiz.title;
+            totalQuestionsSpan.textContent = currentQuestions.length;
+            
+            // Show quiz container, hide selector
+            document.querySelector('.quiz-selector').style.display = 'none';
+            quizContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            
+            // Show first question
+            showQuestion(0);
+        }
+        
+        // Show a specific question
+        function showQuestion(index) {
+            const question = currentQuestions[index];
+            currentQuestionIndex = index;
+            
+            // Update question number
+            currentQuestionSpan.textContent = index + 1;
+            
+            // Update question text
+            questionText.textContent = question.question;
+            
+            // Handle question image if present
+            if (question.image) {
+                questionImage.innerHTML = `<img src="${question.image}" alt="Question image">`;
+                questionImage.style.display = 'block';
+            } else {
+                questionImage.style.display = 'none';
+            }
+            
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+            
+            // Add options
+            question.options.forEach((option, i) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.dataset.index = i;
+                
+                // If user has already answered this question
+                if (userAnswers[index] !== null) {
+                    if (i === userAnswers[index]) {
+                        optionDiv.classList.add('selected');
+                        
+                        // Show if it was correct or incorrect
+                        if (i === question.correctAnswer) {
+                            optionDiv.classList.add('correct');
+                        } else {
+                            optionDiv.classList.add('incorrect');
+                        }
+                    } else if (i === question.correctAnswer) {
+                        optionDiv.classList.add('correct');
+                    }
+                } else {
+                    // Add click event for unanswered questions
+                    optionDiv.addEventListener('click', () => {
+                        // Remove selected class from all options
+                        document.querySelectorAll('.option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        
+                        // Add selected class to clicked option
+                        optionDiv.classList.add('selected');
+                    });
+                }
+                
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            // Show/hide feedback and explanation
+            if (userAnswers[index] !== null) {
+                const isCorrect = userAnswers[index] === question.correctAnswer;
+                showFeedback(isCorrect, question.explanation);
+                submitBtn.disabled = true;
+            } else {
+                hideFeedback();
+                submitBtn.disabled = false;
+            }
+            
+            // Update navigation buttons
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === currentQuestions.length - 1 || userAnswers[index] === null;
+        }
+        
+        // Submit the current answer
+        function submitAnswer() {
+            const selectedOption = document.querySelector('.option.selected');
+            
+            if (!selectedOption) {
+                alert('Please select an answer.');
+                return;
+            }
+            
+            const selectedIndex = parseInt(selectedOption.dataset.index);
+            const question = currentQuestions[currentQuestionIndex];
+            const isCorrect = selectedIndex === question.correctAnswer;
+            
+            // Save user's answer
+            userAnswers[currentQuestionIndex] = selectedIndex;
+            
+            // Update score
+            if (isCorrect) {
+                score++;
+            }
+            
+            // Show feedback
+            showFeedback(isCorrect, question.explanation);
+            
+            // Mark options as correct/incorrect
+            document.querySelectorAll('.option').forEach((option, i) => {
+                if (i === question.correctAnswer) {
+                    option.classList.add('correct');
+                } else if (i === selectedIndex && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+                
+                // Remove click event
+                option.replaceWith(option.cloneNode(true));
+            });
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            
+            // Enable next button if not the last question
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                nextBtn.disabled = false;
+            } else {
+                // If it's the last question, show results
+                setTimeout(showResults, 1500);
+            }
+        }
+        
+        // Show feedback for the current answer
+        function showFeedback(isCorrect, explanation) {
+            feedbackDiv.textContent = isCorrect ? 'Correct!' : 'Incorrect!';
+            feedbackDiv.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedbackDiv.style.display = 'block';
+            
+            explanationDiv.textContent = explanation;
+            explanationDiv.style.display = 'block';
+        }
+        
+        // Hide feedback
+        function hideFeedback() {
+            feedbackDiv.style.display = 'none';
+            explanationDiv.style.display = 'none';
+        }
+        
+        // Show the previous question
+        function showPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
+            }
+        }
+        
+        // Show the next question
+        function showNextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                showQuestion(currentQuestionIndex + 1);
+            } else {
+                showResults();
+            }
+        }
+        
+        // Show the quiz results
+        function showResults() {
+            // Hide quiz container, show results
+            quizContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            
+            // Update score
+            scoreSpan.textContent = score;
+            totalScoreSpan.textContent = currentQuestions.length;
+            const percentage = Math.round((score / currentQuestions.length) * 100);
+            percentageSpan.textContent = `${percentage}%`;
+            
+            // Provide feedback based on score
+            let feedbackText = '';
+            if (percentage >= 90) {
+                feedbackText = 'Excellent! You have a strong understanding of the material.';
+            } else if (percentage >= 70) {
+                feedbackText = 'Good job! You have a solid grasp of most concepts.';
+            } else if (percentage >= 50) {
+                feedbackText = 'You\'re on the right track, but there\'s room for improvement.';
+            } else {
+                feedbackText = 'You might want to review the material and try again.';
+            }
+            resultsFeedbackDiv.textContent = feedbackText;
+            
+            // Show question-by-question results
+            resultsListDiv.innerHTML = '';
+            currentQuestions.forEach((question, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer === question.correctAnswer;
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = `result-item ${isCorrect ? 'correct' : 'incorrect'}`;
+                
+                resultItem.innerHTML = `
+                    <p><strong>Question ${index + 1}:</strong> ${question.question}</p>
+                    <p><strong>Your answer:</strong> ${question.options[userAnswer]}</p>
+                    <p><strong>Correct answer:</strong> ${question.options[question.correctAnswer]}</p>
+                    ${!isCorrect ? `<p><strong>Explanation:</strong> ${question.explanation}</p>` : ''}
+                `;
+                
+                resultsListDiv.appendChild(resultItem);
+            });
+        }
+        
+        // Reset the quiz to start over
+        function resetQuiz() {
+            // Show quiz selector, hide results
+            document.querySelector('.quiz-selector').style.display = 'block';
+            resultsContainer.style.display = 'none';
+            
+            // Reset state
+            currentQuiz = null;
+            currentQuestions = [];
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            score = 0;
+        }
+        
+        // Initialize the quiz when the page loads
+        document.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descriptive Statistics Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .input-section {
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        .results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .stats-container {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .visualization {
+            flex: 2;
+            min-width: 400px;
+            height: 400px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .chart-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #fff;
+            border-bottom: 1px solid #fff;
+            margin-bottom: -1px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .explanation {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 8px;
+        }
+        .formula {
+            font-family: 'Courier New', monospace;
+            background-color: #f9f9f9;
+            padding: 5px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        .sample-data {
+            margin-top: 10px;
+        }
+        .sample-data button {
+            margin-right: 10px;
+            background-color: #2196F3;
+        }
+        .sample-data button:hover {
+            background-color: #0b7dda;
+        }
+    </style>
+</head>
+<body>
+    <h1>Descriptive Statistics Calculator</h1>
+    
+    <div class="container">
+        <div class="input-section">
+            <h2>Enter Data</h2>
+            <p>Enter numeric data separated by commas, spaces, or new lines:</p>
+            <textarea id="dataInput" placeholder="Example: 12, 15, 18, 22, 30, 35, 40"></textarea>
+            
+            <div class="sample-data">
+                <button id="loadNormal">Load Normal Data</button>
+                <button id="loadSkewed">Load Right-Skewed Data</button>
+                <button id="loadBimodal">Load Bimodal Data</button>
+                <button id="loadOutliers">Load Data with Outliers</button>
+            </div>
+            
+            <button id="calculateButton">Calculate Statistics</button>
+        </div>
+        
+        <div class="results">
+            <div class="stats-container">
+                <h2>Descriptive Statistics</h2>
+                
+                <div class="tab-container">
+                    <div class="tab active" data-tab="central">Central Tendency</div>
+                    <div class="tab" data-tab="dispersion">Dispersion</div>
+                    <div class="tab" data-tab="shape">Shape</div>
+                    <div class="tab" data-tab="position">Position</div>
+                </div>
+                
+                <div id="central" class="tab-content active">
+                    <table>
+                        <tr>
+                            <th>Statistic</th>
+                            <th>Value</th>
+                        </tr>
+                        <tr>
+                            <td>Mean</td>
+                            <td id="mean">-</td>
+                        </tr>
+                        <tr>
+                            <td>Median</td>
+                            <td id="median">-</td>
+                        </tr>
+                        <tr>
+                            <td>Mode</td>
+                            <td id="mode">-</td>
+                        </tr>
+                        <tr>
+                            <td>Midrange</td>
+                            <td id="midrange">-</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div id="dispersion" class="tab-content">
+                    <table>
+                        <tr>
+                            <th>Statistic</th>
+                            <th>Value</th>
+                        </tr>
+                        <tr>
+                            <td>Range</td>
+                            <td id="range">-</td>
+                        </tr>
+                        <tr>
+                            <td>Variance</td>
+                            <td id="variance">-</td>
+                        </tr>
+                        <tr>
+                            <td>Standard Deviation</td>
+                            <td id="stdDev">-</td>
+                        </tr>
+                        <tr>
+                            <td>Coefficient of Variation</td>
+                            <td id="cv">-</td>
+                        </tr>
+                        <tr>
+                            <td>Interquartile Range (IQR)</td>
+                            <td id="iqr">-</td>
+                        </tr>
+                        <tr>
+                            <td>Mean Absolute Deviation</td>
+                            <td id="mad">-</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div id="shape" class="tab-content">
+                    <table>
+                        <tr>
+                            <th>Statistic</th>
+                            <th>Value</th>
+                        </tr>
+                        <tr>
+                            <td>Skewness</td>
+                            <td id="skewness">-</td>
+                        </tr>
+                        <tr>
+                            <td>Kurtosis</td>
+                            <td id="kurtosis">-</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div id="position" class="tab-content">
+                    <table>
+                        <tr>
+                            <th>Percentile</th>
+                            <th>Value</th>
+                        </tr>
+                        <tr>
+                            <td>Minimum (0th)</td>
+                            <td id="min">-</td>
+                        </tr>
+                        <tr>
+                            <td>First Quartile (25th)</td>
+                            <td id="q1">-</td>
+                        </tr>
+                        <tr>
+                            <td>Median (50th)</td>
+                            <td id="q2">-</td>
+                        </tr>
+                        <tr>
+                            <td>Third Quartile (75th)</td>
+                            <td id="q3">-</td>
+                        </tr>
+                        <tr>
+                            <td>Maximum (100th)</td>
+                            <td id="max">-</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="visualization">
+                <div class="tab-container">
+                    <div class="tab active" data-tab="histogram">Histogram</div>
+                    <div class="tab" data-tab="boxplot">Box Plot</div>
+                    <div class="tab" data-tab="scatter">Scatter Plot</div>
+                </div>
+                
+                <div id="histogram" class="tab-content active">
+                    <div class="chart-container">
+                        <canvas id="histogramChart"></canvas>
+                    </div>
+                </div>
+                
+                <div id="boxplot" class="tab-content">
+                    <div class="chart-container">
+                        <canvas id="boxplotChart"></canvas>
+                    </div>
+                </div>
+                
+                <div id="scatter" class="tab-content">
+                    <div class="chart-container">
+                        <canvas id="scatterChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <h2>Understanding Descriptive Statistics</h2>
+            
+            <h3>Measures of Central Tendency</h3>
+            <p>These statistics describe the center or typical value of a dataset:</p>
+            <ul>
+                <li><strong>Mean:</strong> The arithmetic average of all values. <span class="formula">Mean = ∑x / n</span></li>
+                <li><strong>Median:</strong> The middle value when data is sorted. Less sensitive to outliers than the mean.</li>
+                <li><strong>Mode:</strong> The most frequently occurring value(s).</li>
+                <li><strong>Midrange:</strong> The average of the minimum and maximum values. <span class="formula">Midrange = (min + max) / 2</span></li>
+            </ul>
+            
+            <h3>Measures of Dispersion</h3>
+            <p>These statistics describe how spread out the data is:</p>
+            <ul>
+                <li><strong>Range:</strong> The difference between the maximum and minimum values. <span class="formula">Range = max - min</span></li>
+                <li><strong>Variance:</strong> The average of squared deviations from the mean. <span class="formula">Variance = ∑(x - mean)² / n</span></li>
+                <li><strong>Standard Deviation:</strong> The square root of the variance. <span class="formula">SD = √Variance</span></li>
+                <li><strong>Coefficient of Variation:</strong> The standard deviation relative to the mean. <span class="formula">CV = SD / mean</span></li>
+                <li><strong>Interquartile Range (IQR):</strong> The range of the middle 50% of the data. <span class="formula">IQR = Q3 - Q1</span></li>
+                <li><strong>Mean Absolute Deviation:</strong> The average of absolute deviations from the mean. <span class="formula">MAD = ∑|x - mean| / n</span></li>
+            </ul>
+            
+            <h3>Measures of Shape</h3>
+            <p>These statistics describe the shape of the distribution:</p>
+            <ul>
+                <li><strong>Skewness:</strong> Measures the asymmetry of the distribution.
+                    <ul>
+                        <li>Positive skewness: Right tail is longer (right-skewed)</li>
+                        <li>Negative skewness: Left tail is longer (left-skewed)</li>
+                        <li>Zero skewness: Symmetric distribution</li>
+                    </ul>
+                </li>
+                <li><strong>Kurtosis:</strong> Measures the "tailedness" of the distribution.
+                    <ul>
+                        <li>Positive kurtosis: Heavy tails (leptokurtic)</li>
+                        <li>Negative kurtosis: Light tails (platykurtic)</li>
+                        <li>Zero kurtosis: Normal distribution (mesokurtic)</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>Measures of Position</h3>
+            <p>These statistics describe specific positions in the data:</p>
+            <ul>
+                <li><strong>Percentiles:</strong> Values that divide the data into 100 equal parts.</li>
+                <li><strong>Quartiles:</strong> Values that divide the data into 4 equal parts.
+                    <ul>
+                        <li>First Quartile (Q1): 25th percentile</li>
+                        <li>Second Quartile (Q2): 50th percentile (median)</li>
+                        <li>Third Quartile (Q3): 75th percentile</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>Visualizations</h3>
+            <p>Different visualizations highlight different aspects of the data:</p>
+            <ul>
+                <li><strong>Histogram:</strong> Shows the frequency distribution and shape of the data.</li>
+                <li><strong>Box Plot:</strong> Shows the five-number summary (minimum, Q1, median, Q3, maximum) and potential outliers.</li>
+                <li><strong>Scatter Plot:</strong> Shows individual data points to visualize the distribution.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-box-and-violin-plot@4.0.0/build/index.umd.min.js"></script>
+    <script>
+        // Register the boxplot chart type
+        Chart.register(window.chartBoxPlot.BoxPlotController, window.chartBoxPlot.BoxAndWiskers);
+        
+        // DOM elements
+        const dataInput = document.getElementById('dataInput');
+        const calculateButton = document.getElementById('calculateButton');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Sample data buttons
+        const loadNormalButton = document.getElementById('loadNormal');
+        const loadSkewedButton = document.getElementById('loadSkewed');
+        const loadBimodalButton = document.getElementById('loadBimodal');
+        const loadOutliersButton = document.getElementById('loadOutliers');
+        
+        // Chart instances
+        let histogramChart = null;
+        let boxplotChart = null;
+        let scatterChart = null;
+        
+        // Initialize the application
+        function init() {
+            // Set up tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabContainer = tab.parentElement;
+                    const tabName = tab.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs in this container
+                    tabContainer.querySelectorAll('.tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Find the corresponding content container
+                    const contentContainer = tabContainer.nextElementSibling.parentElement;
+                    
+                    // Hide all tab contents in this container
+                    contentContainer.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show the selected tab content
+                    document.getElementById(tabName).classList.add('active');
+                });
+            });
+            
+            // Set up calculate button
+            calculateButton.addEventListener('click', calculateStatistics);
+            
+            // Set up sample data buttons
+            loadNormalButton.addEventListener('click', () => {
+                dataInput.value = generateNormalData().join(', ');
+                calculateStatistics();
+            });
+            
+            loadSkewedButton.addEventListener('click', () => {
+                dataInput.value = generateSkewedData().join(', ');
+                calculateStatistics();
+            });
+            
+            loadBimodalButton.addEventListener('click', () => {
+                dataInput.value = generateBimodalData().join(', ');
+                calculateStatistics();
+            });
+            
+            loadOutliersButton.addEventListener('click', () => {
+                dataInput.value = generateOutlierData().join(', ');
+                calculateStatistics();
+            });
+        }
+        
+        // Parse input data
+        function parseData(input) {
+            // Replace multiple delimiters with a single comma
+            const cleanedInput = input.replace(/[\s\n\r\t]+/g, ',').replace(/,+/g, ',').trim();
+            
+            // Split by comma and convert to numbers
+            return cleanedInput.split(',')
+                .map(value => value.trim())
+                .filter(value => value !== '')
+                .map(value => parseFloat(value))
+                .filter(value => !isNaN(value));
+        }
+        
+        // Calculate all statistics
+        function calculateStatistics() {
+            const data = parseData(dataInput.value);
+            
+            if (data.length === 0) {
+                alert('Please enter valid numeric data.');
+                return;
+            }
+            
+            // Sort data for calculations
+            const sortedData = [...data].sort((a, b) => a - b);
+            
+            // Calculate statistics
+            const stats = {
+                // Central tendency
+                mean: calculateMean(data),
+                median: calculateMedian(sortedData),
+                mode: calculateMode(data),
+                midrange: calculateMidrange(sortedData),
+                
+                // Dispersion
+                range: calculateRange(sortedData),
+                variance: calculateVariance(data),
+                stdDev: calculateStdDev(data),
+                cv: calculateCV(data),
+                iqr: calculateIQR(sortedData),
+                mad: calculateMAD(data),
+                
+                // Shape
+                skewness: calculateSkewness(data),
+                kurtosis: calculateKurtosis(data),
+                
+                // Position
+                min: sortedData[0],
+                q1: calculateQ1(sortedData),
+                q2: calculateMedian(sortedData),
+                q3: calculateQ3(sortedData),
+                max: sortedData[sortedData.length - 1]
+            };
+            
+            // Update statistics display
+            updateStatisticsDisplay(stats);
+            
+            // Update visualizations
+            updateHistogram(data);
+            updateBoxPlot(data, stats);
+            updateScatterPlot(data);
+        }
+        
+        // Update statistics display
+        function updateStatisticsDisplay(stats) {
+            // Central tendency
+            document.getElementById('mean').textContent = formatNumber(stats.mean);
+            document.getElementById('median').textContent = formatNumber(stats.median);
+            document.getElementById('mode').textContent = stats.mode;
+            document.getElementById('midrange').textContent = formatNumber(stats.midrange);
+            
+            // Dispersion
+            document.getElementById('range').textContent = formatNumber(stats.range);
+            document.getElementById('variance').textContent = formatNumber(stats.variance);
+            document.getElementById('stdDev').textContent = formatNumber(stats.stdDev);
+            document.getElementById('cv').textContent = formatNumber(stats.cv);
+            document.getElementById('iqr').textContent = formatNumber(stats.iqr);
+            document.getElementById('mad').textContent = formatNumber(stats.mad);
+            
+            // Shape
+            document.getElementById('skewness').textContent = formatNumber(stats.skewness);
+            document.getElementById('kurtosis').textContent = formatNumber(stats.kurtosis);
+            
+            // Position
+            document.getElementById('min').textContent = formatNumber(stats.min);
+            document.getElementById('q1').textContent = formatNumber(stats.q1);
+            document.getElementById('q2').textContent = formatNumber(stats.median);
+            document.getElementById('q3').textContent = formatNumber(stats.q3);
+            document.getElementById('max').textContent = formatNumber(stats.max);
+        }
+        
+        // Update histogram
+        function updateHistogram(data) {
+            const ctx = document.getElementById('histogramChart').getContext('2d');
+            
+            // Destroy previous chart if it exists
+            if (histogramChart) {
+                histogramChart.destroy();
+            }
+            
+            // Calculate bins for histogram
+            const binCount = Math.ceil(Math.sqrt(data.length)); // Square root rule
+            const min = Math.min(...data);
+            const max = Math.max(...data);
+            const binWidth = (max - min) / binCount;
+            
+            const bins = Array(binCount).fill(0);
+            const binLabels = [];
+            
+            // Create bin labels
+            for (let i = 0; i < binCount; i++) {
+                const binStart = min + i * binWidth;
+                const binEnd = binStart + binWidth;
+                binLabels.push(`${formatNumber(binStart)}-${formatNumber(binEnd)}`);
+            }
+            
+            // Count data points in each bin
+            data.forEach(value => {
+                const binIndex = Math.min(Math.floor((value - min) / binWidth), binCount - 1);
+                bins[binIndex]++;
+            });
+            
+            // Create histogram
+            histogramChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: binLabels,
+                    datasets: [{
+                        label: 'Frequency',
+                        data: bins,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Frequency'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Histogram'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update box plot
+        function updateBoxPlot(data, stats) {
+            const ctx = document.getElementById('boxplotChart').getContext('2d');
+            
+            // Destroy previous chart if it exists
+            if (boxplotChart) {
+                boxplotChart.destroy();
+            }
+            
+            // Create box plot
+            boxplotChart = new Chart(ctx, {
+                type: 'boxplot',
+                data: {
+                    labels: ['Data'],
+                    datasets: [{
+                        label: 'Box Plot',
+                        data: [{
+                            min: stats.min,
+                            q1: stats.q1,
+                            median: stats.median,
+                            q3: stats.q3,
+                            max: stats.max,
+                            outliers: findOutliers(data, stats)
+                        }],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        outlierBackgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        outlierBorderColor: 'rgba(255, 99, 132, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Box Plot'
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update scatter plot
+        function updateScatterPlot(data) {
+            const ctx = document.getElementById('scatterChart').getContext('2d');
+            
+            // Destroy previous chart if it exists
+            if (scatterChart) {
+                scatterChart.destroy();
+            }
+            
+            // Create scatter plot data
+            const scatterData = data.map((value, index) => ({
+                x: index + 1,
+                y: value
+            }));
+            
+            // Create scatter plot
+            scatterChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Data Points',
+                        data: scatterData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: 'Index'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Scatter Plot'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Statistical calculation functions
+        function calculateMean(data) {
+            return data.reduce((sum, value) => sum + value, 0) / data.length;
+        }
+        
+        function calculateMedian(sortedData) {
+            const mid = Math.floor(sortedData.length / 2);
+            return sortedData.length % 2 === 0
+                ? (sortedData[mid - 1] + sortedData[mid]) / 2
+                : sortedData[mid];
+        }
+        
+        function calculateMode(data) {
+            const counts = {};
+            let maxCount = 0;
+            let modes = [];
+            
+            data.forEach(value => {
+                counts[value] = (counts[value] || 0) + 1;
+                if (counts[value] > maxCount) {
+                    maxCount = counts[value];
+                    modes = [value];
+                } else if (counts[value] === maxCount) {
+                    modes.push(value);
+                }
+            });
+            
+            if (modes.length === Object.keys(counts).length) {
+                return 'No mode (all values occur equally)';
+            }
+            
+            return modes.map(formatNumber).join(', ');
+        }
+        
+        function calculateMidrange(sortedData) {
+            return (sortedData[0] + sortedData[sortedData.length - 1]) / 2;
+        }
+        
+        function calculateRange(sortedData) {
+            return sortedData[sortedData.length - 1] - sortedData[0];
+        }
+        
+        function calculateVariance(data) {
+            const mean = calculateMean(data);
+            return data.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / data.length;
+        }
+        
+        function calculateStdDev(data) {
+            return Math.sqrt(calculateVariance(data));
+        }
+        
+        function calculateCV(data) {
+            const mean = calculateMean(data);
+            const stdDev = calculateStdDev(data);
+            return stdDev / mean;
+        }
+        
+        function calculateQ1(sortedData) {
+            const mid = Math.floor(sortedData.length / 2);
+            const lowerHalf = sortedData.slice(0, mid);
+            return calculateMedian(lowerHalf);
+        }
+        
+        function calculateQ3(sortedData) {
+            const mid = Math.floor(sortedData.length / 2);
+            const upperHalf = sortedData.slice(sortedData.length % 2 === 0 ? mid : mid + 1);
+            return calculateMedian(upperHalf);
+        }
+        
+        function calculateIQR(sortedData) {
+            return calculateQ3(sortedData) - calculateQ1(sortedData);
+        }
+        
+        function calculateMAD(data) {
+            const mean = calculateMean(data);
+            return data.reduce((sum, value) => sum + Math.abs(value - mean), 0) / data.length;
+        }
+        
+        function calculateSkewness(data) {
+            const mean = calculateMean(data);
+            const stdDev = calculateStdDev(data);
+            const n = data.length;
+            
+            const sum = data.reduce((sum, value) => sum + Math.pow((value - mean) / stdDev, 3), 0);
+            return n / ((n - 1) * (n - 2)) * sum;
+        }
+        
+        function calculateKurtosis(data) {
+            const mean = calculateMean(data);
+            const stdDev = calculateStdDev(data);
+            const n = data.length;
+            
+            const sum = data.reduce((sum, value) => sum + Math.pow((value - mean) / stdDev, 4), 0);
+            return (n * (n + 1) / ((n - 1) * (n - 2) * (n - 3))) * sum - (3 * Math.pow(n - 1, 2) / ((n - 2) * (n - 3)));
+        }
+        
+        function findOutliers(data, stats) {
+            const lowerBound = stats.q1 - 1.5 * stats.iqr;
+            const upperBound = stats.q3 + 1.5 * stats.iqr;
+            
+            return data.filter(value => value < lowerBound || value > upperBound);
+        }
+        
+        // Helper function to format numbers
+        function formatNumber(value) {
+            return Number.isInteger(value) ? value.toString() : value.toFixed(4);
+        }
+        
+        // Sample data generation functions
+        function generateNormalData() {
+            // Generate approximately normally distributed data using Box-Muller transform
+            const data = [];
+            const mean = 50;
+            const stdDev = 10;
+            
+            for (let i = 0; i < 100; i++) {
+                const u1 = Math.random();
+                const u2 = Math.random();
+                const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+                data.push(Math.round((z * stdDev + mean) * 100) / 100);
+            }
+            
+            return data;
+        }
+        
+        function generateSkewedData() {
+            // Generate right-skewed data using exponential distribution
+            const data = [];
+            const lambda = 0.1;
+            
+            for (let i = 0; i < 100; i++) {
+                const value = -Math.log(Math.random()) / lambda;
+                data.push(Math.round(value * 100) / 100);
+            }
+            
+            return data;
+        }
+        
+        function generateBimodalData() {
+            // Generate bimodal data by combining two normal distributions
+            const data = [];
+            
+            for (let i = 0; i < 50; i++) {
+                const u1 = Math.random();
+                const u2 = Math.random();
+                const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+                data.push(Math.round((z * 5 + 30) * 100) / 100);
+            }
+            
+            for (let i = 0; i < 50; i++) {
+                const u1 = Math.random();
+                const u2 = Math.random();
+                const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+                data.push(Math.round((z * 5 + 70) * 100) / 100);
+            }
+            
+            return data;
+        }
+        
+        function generateOutlierData() {
+            // Generate data with outliers
+            const data = [];
+            const mean = 50;
+            const stdDev = 10;
+            
+            for (let i = 0; i < 95; i++) {
+                const u1 = Math.random();
+                const u2 = Math.random();
+                const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+                data.push(Math.round((z * stdDev + mean) * 100) / 100);
+            }
+            
+            // Add outliers
+            data.push(mean + 4 * stdDev);
+            data.push(mean + 4.5 * stdDev);
+            data.push(mean - 3.8 * stdDev);
+            data.push(mean + 5 * stdDev);
+            data.push(mean - 4.2 * stdDev);
+            
+            return data;
+        }
+        
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>

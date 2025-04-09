@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analysis Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .section {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .data-input {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 200px;
+        }
+        select, input {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .sample-data {
+            margin-top: 10px;
+        }
+        .sample-data button {
+            margin-right: 10px;
+            background-color: #2196F3;
+        }
+        .sample-data button:hover {
+            background-color: #0b7dda;
+        }
+        .results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .result-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+        }
+        .chart-container {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #fff;
+            border-bottom: 1px solid #fff;
+            margin-bottom: -1px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e9f7ef;
+        }
+        .code-block {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .explanation {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Data Analysis Tool</h1>
+    
+    <div class="container">
+        <div class="section input-section">
+            <h2>Data Input</h2>
+            
+            <div class="data-input">
+                <label for="data-x">Variable X (Independent):</label>
+                <textarea id="data-x" placeholder="Enter data for X, separated by commas, spaces, or new lines"></textarea>
+                
+                <label for="data-y">Variable Y (Dependent):</label>
+                <textarea id="data-y" placeholder="Enter data for Y, separated by commas, spaces, or new lines"></textarea>
+                
+                <div class="sample-data">
+                    <button id="load-linear">Load Linear Relationship Data</button>
+                    <button id="load-quadratic">Load Quadratic Relationship Data</button>
+                    <button id="load-no-relation">Load No Relationship Data</button>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="analysis-type">Analysis Type:</label>
+                    <select id="analysis-type">
+                        <option value="correlation">Correlation Analysis</option>
+                        <option value="regression">Regression Analysis</option>
+                        <option value="comparison">Group Comparison</option>
+                    </select>
+                </div>
+                
+                <div class="control-group" id="regression-options" style="display: none;">
+                    <label for="regression-type">Regression Type:</label>
+                    <select id="regression-type">
+                        <option value="linear">Simple Linear Regression</option>
+                        <option value="polynomial">Polynomial Regression</option>
+                        <option value="multiple">Multiple Regression (Requires CSV Upload)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group" id="polynomial-options" style="display: none;">
+                    <label for="polynomial-degree">Polynomial Degree:</label>
+                    <select id="polynomial-degree">
+                        <option value="2">2 (Quadratic)</option>
+                        <option value="3">3 (Cubic)</option>
+                        <option value="4">4 (Quartic)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group" id="comparison-options" style="display: none;">
+                    <label for="comparison-type">Comparison Type:</label>
+                    <select id="comparison-type">
+                        <option value="ttest">t-Test (Two Groups)</option>
+                        <option value="anova">ANOVA (Multiple Groups)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <button id="analyze-btn">Analyze Data</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="results-container" style="display: none;">
+            <h2>Analysis Results</h2>
+            
+            <div class="tab-container">
+                <div class="tab active" data-tab="summary">Summary</div>
+                <div class="tab" data-tab="visualization">Visualization</div>
+                <div class="tab" data-tab="details">Detailed Results</div>
+                <div class="tab" data-tab="code">Code Implementation</div>
+            </div>
+            
+            <div id="summary" class="tab-content active">
+                <div id="summary-content"></div>
+            </div>
+            
+            <div id="visualization" class="tab-content">
+                <div class="chart-container">
+                    <canvas id="result-chart"></canvas>
+                </div>
+            </div>
+            
+            <div id="details" class="tab-content">
+                <div id="details-content"></div>
+            </div>
+            
+            <div id="code" class="tab-content">
+                <h3>Python Code Implementation</h3>
+                <p>Here's how you could implement this analysis in Python:</p>
+                <div id="code-content" class="code-block"></div>
+            </div>
+            
+            <div class="feedback" id="feedback-container">
+                <h3>Interpretation and Feedback</h3>
+                <div id="feedback-content"></div>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <h2>About Data Analysis</h2>
+            
+            <h3>Correlation Analysis</h3>
+            <p>Correlation analysis measures the strength and direction of the relationship between two variables. The correlation coefficient (r) ranges from -1 to 1:</p>
+            <ul>
+                <li>r = 1: Perfect positive correlation</li>
+                <li>r = -1: Perfect negative correlation</li>
+                <li>r = 0: No correlation</li>
+            </ul>
+            <p>Remember that correlation does not imply causation. Two variables may be correlated without one causing the other.</p>
+            
+            <h3>Regression Analysis</h3>
+            <p>Regression analysis models the relationship between a dependent variable and one or more independent variables. It allows you to:</p>
+            <ul>
+                <li>Understand how the dependent variable changes when independent variables change</li>
+                <li>Predict values of the dependent variable</li>
+                <li>Identify which independent variables have the strongest relationship with the dependent variable</li>
+            </ul>
+            <p>The coefficient of determination (R²) measures how well the model explains the variation in the dependent variable.</p>
+            
+            <h3>Group Comparison</h3>
+            <p>Group comparison tests determine whether there are significant differences between groups:</p>
+            <ul>
+                <li>t-Test: Compares means between two groups</li>
+                <li>ANOVA: Compares means across three or more groups</li>
+            </ul>
+            <p>The p-value indicates whether the differences are statistically significant. Typically, if p &lt; 0.05, we conclude that there is a significant difference.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
+    <script>
+        // DOM elements
+        const dataXInput = document.getElementById('data-x');
+        const dataYInput = document.getElementById('data-y');
+        const analysisTypeSelect = document.getElementById('analysis-type');
+        const regressionOptionsDiv = document.getElementById('regression-options');
+        const regressionTypeSelect = document.getElementById('regression-type');
+        const polynomialOptionsDiv = document.getElementById('polynomial-options');
+        const polynomialDegreeSelect = document.getElementById('polynomial-degree');
+        const comparisonOptionsDiv = document.getElementById('comparison-options');
+        const comparisonTypeSelect = document.getElementById('comparison-type');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const summaryContentDiv = document.getElementById('summary-content');
+        const detailsContentDiv = document.getElementById('details-content');
+        const codeContentDiv = document.getElementById('code-content');
+        const feedbackContentDiv = document.getElementById('feedback-content');
+        
+        // Sample data buttons
+        const loadLinearBtn = document.getElementById('load-linear');
+        const loadQuadraticBtn = document.getElementById('load-quadratic');
+        const loadNoRelationBtn = document.getElementById('load-no-relation');
+        
+        // Chart instance
+        let resultChart = null;
+        
+        // Initialize the application
+        function init() {
+            // Set up event listeners
+            analysisTypeSelect.addEventListener('change', updateAnalysisOptions);
+            regressionTypeSelect.addEventListener('change', updateRegressionOptions);
+            analyzeBtn.addEventListener('click', analyzeData);
+            
+            // Set up tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Hide all tab contents
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show the selected tab content
+                    const tabName = tab.getAttribute('data-tab');
+                    document.getElementById(tabName).classList.add('active');
+                });
+            });
+            
+            // Set up sample data buttons
+            loadLinearBtn.addEventListener('click', () => {
+                loadSampleData('linear');
+            });
+            
+            loadQuadraticBtn.addEventListener('click', () => {
+                loadSampleData('quadratic');
+            });
+            
+            loadNoRelationBtn.addEventListener('click', () => {
+                loadSampleData('no-relation');
+            });
+            
+            // Initialize options
+            updateAnalysisOptions();
+        }
+        
+        // Update analysis options based on selected analysis type
+        function updateAnalysisOptions() {
+            const analysisType = analysisTypeSelect.value;
+            
+            // Hide all option divs
+            regressionOptionsDiv.style.display = 'none';
+            polynomialOptionsDiv.style.display = 'none';
+            comparisonOptionsDiv.style.display = 'none';
+            
+            // Show relevant option divs
+            if (analysisType === 'regression') {
+                regressionOptionsDiv.style.display = 'block';
+                updateRegressionOptions();
+            } else if (analysisType === 'comparison') {
+                comparisonOptionsDiv.style.display = 'block';
+            }
+        }
+        
+        // Update regression options based on selected regression type
+        function updateRegressionOptions() {
+            const regressionType = regressionTypeSelect.value;
+            
+            // Show/hide polynomial options
+            polynomialOptionsDiv.style.display = regressionType === 'polynomial' ? 'block' : 'none';
+        }
+        
+        // Load sample data
+        function loadSampleData(type) {
+            let xData = [];
+            let yData = [];
+            
+            switch (type) {
+                case 'linear':
+                    // Generate linear relationship data
+                    for (let i = 0; i < 20; i++) {
+                        const x = i + Math.random() * 2 - 1;
+                        const y = 2 * x + 5 + Math.random() * 4 - 2;
+                        xData.push(x.toFixed(2));
+                        yData.push(y.toFixed(2));
+                    }
+                    break;
+                    
+                case 'quadratic':
+                    // Generate quadratic relationship data
+                    for (let i = 0; 
+(Content truncated due to size limit. Use line ranges to read in chunks)

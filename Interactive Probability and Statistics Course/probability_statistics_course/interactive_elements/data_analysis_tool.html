@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analysis Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .section {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .data-input {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 200px;
+        }
+        select, input {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .sample-data {
+            margin-top: 10px;
+        }
+        .sample-data button {
+            margin-right: 10px;
+            background-color: #2196F3;
+        }
+        .sample-data button:hover {
+            background-color: #0b7dda;
+        }
+        .results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .result-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+        }
+        .chart-container {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #fff;
+            border-bottom: 1px solid #fff;
+            margin-bottom: -1px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e9f7ef;
+        }
+        .code-block {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .explanation {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Data Analysis Tool</h1>
+    
+    <div class="container">
+        <div class="section input-section">
+            <h2>Data Input</h2>
+            
+            <div class="data-input">
+                <label for="data-x">Variable X (Independent):</label>
+                <textarea id="data-x" placeholder="Enter data for X, separated by commas, spaces, or new lines"></textarea>
+                
+                <label for="data-y">Variable Y (Dependent):</label>
+                <textarea id="data-y" placeholder="Enter data for Y, separated by commas, spaces, or new lines"></textarea>
+                
+                <div class="sample-data">
+                    <button id="load-linear">Load Linear Relationship Data</button>
+                    <button id="load-quadratic">Load Quadratic Relationship Data</button>
+                    <button id="load-no-relation">Load No Relationship Data</button>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="analysis-type">Analysis Type:</label>
+                    <select id="analysis-type">
+                        <option value="correlation">Correlation Analysis</option>
+                        <option value="regression">Regression Analysis</option>
+                        <option value="comparison">Group Comparison</option>
+                    </select>
+                </div>
+                
+                <div class="control-group" id="regression-options" style="display: none;">
+                    <label for="regression-type">Regression Type:</label>
+                    <select id="regression-type">
+                        <option value="linear">Simple Linear Regression</option>
+                        <option value="polynomial">Polynomial Regression</option>
+                        <option value="multiple">Multiple Regression (Requires CSV Upload)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group" id="polynomial-options" style="display: none;">
+                    <label for="polynomial-degree">Polynomial Degree:</label>
+                    <select id="polynomial-degree">
+                        <option value="2">2 (Quadratic)</option>
+                        <option value="3">3 (Cubic)</option>
+                        <option value="4">4 (Quartic)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group" id="comparison-options" style="display: none;">
+                    <label for="comparison-type">Comparison Type:</label>
+                    <select id="comparison-type">
+                        <option value="ttest">t-Test (Two Groups)</option>
+                        <option value="anova">ANOVA (Multiple Groups)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <button id="analyze-btn">Analyze Data</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="results-container" style="display: none;">
+            <h2>Analysis Results</h2>
+            
+            <div class="tab-container">
+                <div class="tab active" data-tab="summary">Summary</div>
+                <div class="tab" data-tab="visualization">Visualization</div>
+                <div class="tab" data-tab="details">Detailed Results</div>
+                <div class="tab" data-tab="code">Code Implementation</div>
+            </div>
+            
+            <div id="summary" class="tab-content active">
+                <div id="summary-content"></div>
+            </div>
+            
+            <div id="visualization" class="tab-content">
+                <div class="chart-container">
+                    <canvas id="result-chart"></canvas>
+                </div>
+            </div>
+            
+            <div id="details" class="tab-content">
+                <div id="details-content"></div>
+            </div>
+            
+            <div id="code" class="tab-content">
+                <h3>Python Code Implementation</h3>
+                <p>Here's how you could implement this analysis in Python:</p>
+                <div id="code-content" class="code-block"></div>
+            </div>
+            
+            <div class="feedback" id="feedback-container">
+                <h3>Interpretation and Feedback</h3>
+                <div id="feedback-content"></div>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <h2>About Data Analysis</h2>
+            
+            <h3>Correlation Analysis</h3>
+            <p>Correlation analysis measures the strength and direction of the relationship between two variables. The correlation coefficient (r) ranges from -1 to 1:</p>
+            <ul>
+                <li>r = 1: Perfect positive correlation</li>
+                <li>r = -1: Perfect negative correlation</li>
+                <li>r = 0: No correlation</li>
+            </ul>
+            <p>Remember that correlation does not imply causation. Two variables may be correlated without one causing the other.</p>
+            
+            <h3>Regression Analysis</h3>
+            <p>Regression analysis models the relationship between a dependent variable and one or more independent variables. It allows you to:</p>
+            <ul>
+                <li>Understand how the dependent variable changes when independent variables change</li>
+                <li>Predict values of the dependent variable</li>
+                <li>Identify which independent variables have the strongest relationship with the dependent variable</li>
+            </ul>
+            <p>The coefficient of determination (R²) measures how well the model explains the variation in the dependent variable.</p>
+            
+            <h3>Group Comparison</h3>
+            <p>Group comparison tests determine whether there are significant differences between groups:</p>
+            <ul>
+                <li>t-Test: Compares means between two groups</li>
+                <li>ANOVA: Compares means across three or more groups</li>
+            </ul>
+            <p>The p-value indicates whether the differences are statistically significant. Typically, if p &lt; 0.05, we conclude that there is a significant difference.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
+    <script>
+        // DOM elements
+        const dataXInput = document.getElementById('data-x');
+        const dataYInput = document.getElementById('data-y');
+        const analysisTypeSelect = document.getElementById('analysis-type');
+        const regressionOptionsDiv = document.getElementById('regression-options');
+        const regressionTypeSelect = document.getElementById('regression-type');
+        const polynomialOptionsDiv = document.getElementById('polynomial-options');
+        const polynomialDegreeSelect = document.getElementById('polynomial-degree');
+        const comparisonOptionsDiv = document.getElementById('comparison-options');
+        const comparisonTypeSelect = document.getElementById('comparison-type');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const summaryContentDiv = document.getElementById('summary-content');
+        const detailsContentDiv = document.getElementById('details-content');
+        const codeContentDiv = document.getElementById('code-content');
+        const feedbackContentDiv = document.getElementById('feedback-content');
+        
+        // Sample data buttons
+        const loadLinearBtn = document.getElementById('load-linear');
+        const loadQuadraticBtn = document.getElementById('load-quadratic');
+        const loadNoRelationBtn = document.getElementById('load-no-relation');
+        
+        // Chart instance
+        let resultChart = null;
+        
+        // Initialize the application
+        function init() {
+            // Set up event listeners
+            analysisTypeSelect.addEventListener('change', updateAnalysisOptions);
+            regressionTypeSelect.addEventListener('change', updateRegressionOptions);
+            analyzeBtn.addEventListener('click', analyzeData);
+            
+            // Set up tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Hide all tab contents
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show the selected tab content
+                    const tabName = tab.getAttribute('data-tab');
+                    document.getElementById(tabName).classList.add('active');
+                });
+            });
+            
+            // Set up sample data buttons
+            loadLinearBtn.addEventListener('click', () => {
+                loadSampleData('linear');
+            });
+            
+            loadQuadraticBtn.addEventListener('click', () => {
+                loadSampleData('quadratic');
+            });
+            
+            loadNoRelationBtn.addEventListener('click', () => {
+                loadSampleData('no-relation');
+            });
+            
+            // Initialize options
+            updateAnalysisOptions();
+        }
+        
+        // Update analysis options based on selected analysis type
+        function updateAnalysisOptions() {
+            const analysisType = analysisTypeSelect.value;
+            
+            // Hide all option divs
+            regressionOptionsDiv.style.display = 'none';
+            polynomialOptionsDiv.style.display = 'none';
+            comparisonOptionsDiv.style.display = 'none';
+            
+            // Show relevant option divs
+            if (analysisType === 'regression') {
+                regressionOptionsDiv.style.display = 'block';
+                updateRegressionOptions();
+            } else if (analysisType === 'comparison') {
+                comparisonOptionsDiv.style.display = 'block';
+            }
+        }
+        
+        // Update regression options based on selected regression type
+        function updateRegressionOptions() {
+            const regressionType = regressionTypeSelect.value;
+            
+            // Show/hide polynomial options
+            polynomialOptionsDiv.style.display = regressionType === 'polynomial' ? 'block' : 'none';
+        }
+        
+        // Load sample data
+        function loadSampleData(type) {
+            let xData = [];
+            let yData = [];
+            
+            switch (type) {
+                case 'linear':
+                    // Generate linear relationship data
+                    for (let i = 0; i < 20; i++) {
+                        const x = i + Math.random() * 2 - 1;
+                        const y = 2 * x + 5 + Math.random() * 4 - 2;
+                        xData.push(x.toFixed(2));
+                        yData.push(y.toFixed(2));
+                    }
+                    break;
+                    
+                case 'quadratic':
+                    // Generate quadratic relationship data
+                    for (let i = 0; i < 20; i++) {
+                        const x = i - 10 + Math.random() * 2 - 1;
+                        const y = 0.5 * x * x - 2 * x + 3 + Math.random() * 5 - 2.5;
+                        xData.push(x.toFixed(2));
+                        yData.push(y.toFixed(2));
+                    }
+                    break;
+                    
+                case 'no-relation':
+                    // Generate no relationship data
+                    for (let i = 0; i < 20; i++) {
+                        const x = i + Math.random() * 2 - 1;
+                        const y = Math.random() * 20;
+                        xData.push(x.toFixed(2));
+                        yData.push(y.toFixed(2));
+                    }
+                    break;
+            }
+            
+            // Set data in textareas
+            dataXInput.value = xData.join(', ');
+            dataYInput.value = yData.join(', ');
+        }
+        
+        // Parse input data
+        function parseData(input) {
+            // Replace multiple delimiters with a single comma
+            const cleanedInput = input.replace(/[\s\n\r\t]+/g, ',').replace(/,+/g, ',').trim();
+            
+            // Split by comma and convert to numbers
+            return cleanedInput.split(',')
+                .map(value => value.trim())
+                .filter(value => value !== '')
+                .map(value => parseFloat(value))
+                .filter(value => !isNaN(value));
+        }
+        
+        // Analyze the data
+        function analyzeData() {
+            // Parse input data
+            const xData = parseData(dataXInput.value);
+            const yData = parseData(dataYInput.value);
+            
+            // Validate data
+            if (xData.length === 0 || yData.length === 0) {
+                alert('Please enter valid data for both variables.');
+                return;
+            }
+            
+            if (xData.length !== yData.length) {
+                alert('Both variables must have the same number of data points.');
+                return;
+            }
+            
+            // Get analysis type
+            const analysisType = analysisTypeSelect.value;
+            
+            // Perform analysis based on type
+            let results;
+            switch (analysisType) {
+                case 'correlation':
+                    results = performCorrelationAnalysis(xData, yData);
+                    break;
+                    
+                case 'regression':
+                    const regressionType = regressionTypeSelect.value;
+                    if (regressionType === 'linear') {
+                        results = performLinearRegression(xData, yData);
+                    } else if (regressionType === 'polynomial') {
+                        const degree = parseInt(polynomialDegreeSelect.value);
+                        results = performPolynomialRegression(xData, yData, degree);
+                    } else {
+                        alert('Multiple regression requires CSV upload, which is not implemented in this demo.');
+                        return;
+                    }
+                    break;
+                    
+                case 'comparison':
+                    const comparisonType = comparisonTypeSelect.value;
+                    if (comparisonType === 'ttest') {
+                        results = performTTest(xData, yData);
+                    } else {
+                        alert('ANOVA requires multiple groups, which is not implemented in this demo.');
+                        return;
+                    }
+                    break;
+            }
+            
+            // Display results
+            displayResults(results, xData, yData);
+            
+            // Show results container
+            resultsContainer.style.display = 'block';
+        }
+        
+        // Perform correlation analysis
+        function performCorrelationAnalysis(xData, yData) {
+            // Calculate correlation coefficient
+            const n = xData.length;
+            const xMean = xData.reduce((sum, x) => sum + x, 0) / n;
+            const yMean = yData.reduce((sum, y) => sum + y, 0) / n;
+            
+            let numerator = 0;
+            let xDenominator = 0;
+            let yDenominator = 0;
+            
+            for (let i = 0; i < n; i++) {
+                const xDiff = xData[i] - xMean;
+                const yDiff = yData[i] - yMean;
+                numerator += xDiff * yDiff;
+                xDenominator += xDiff * xDiff;
+                yDenominator += yDiff * yDiff;
+            }
+            
+            const r = numerator / Math.sqrt(xDenominator * yDenominator);
+            const rSquared = r * r;
+            
+            // Calculate covariance
+            const covariance = numerator / n;
+            
+            // Calculate standard deviations
+            const xStdDev = Math.sqrt(xDenominator / n);
+            const yStdDev = Math.sqrt(yDenominator / n);
+            
+            // Determine significance
+            const t = r * Math.sqrt((n - 2) / (1 - r * r));
+            const degreesOfFreedom = n - 2;
+            
+            // Approximate p-value using t-distribution
+            const pValue = calculatePValue(t, degreesOfFreedom);
+            
+            // Determine correlation strength
+            let strength;
+            const absR = Math.abs(r);
+            if (absR < 0.3) {
+                strength = 'weak';
+            } else if (absR < 0.7) {
+                strength = 'moderate';
+            } else {
+                strength = 'strong';
+            }
+            
+            // Determine direction
+            const direction = r > 0 ? 'positive' : (r < 0 ? 'negative' : 'no');
+            
+            return {
+                type: 'correlation',
+                r: r,
+                rSquared: rSquared,
+                covariance: covariance,
+                xStdDev: xStdDev,
+                yStdDev: yStdDev,
+                t: t,
+                degreesOfFreedom: degreesOfFreedom,
+                pValue: pValue,
+                strength: strength,
+                direction: direction,
+                significant: pValue < 0.05
+            };
+        }
+        
+        // Perform linear regression
+        function performLinearRegression(xData, yData) {
+            // Calculate means
+            const n = xData.length;
+            const xMean = xData.reduce((sum, x) => sum + x, 0) / n;
+            const yMean = yData.reduce((sum, y) => sum + y, 0) / n;
+            
+            // Calculate slope and intercept
+            let numerator = 0;
+            let denominator = 0;
+            
+            for (let i = 0; i < n; i++) {
+                const xDiff = xData[i] - xMean;
+                numerator += xDiff * (yData[i] - yMean);
+                denominator += xDiff * xDiff;
+            }
+            
+            const slope = numerator / denominator;
+            const intercept = yMean - slope * xMean;
+            
+            // Calculate predicted values and residuals
+            const predicted = xData.map(x => slope * x + intercept);
+            const residuals = yData.map((y, i) => y - predicted[i]);
+            
+            // Calculate R-squared
+            const ssTot = yData.reduce((sum, y) => sum + Math.pow(y - yMean, 2), 0);
+            const ssRes = residuals.reduce((sum, res) => sum + res * res, 0);
+            const rSquared = 1 - (ssRes / ssTot);
+            
+            // Calculate standard error of the estimate
+            const standardError = Math.sqrt(ssRes / (n - 2));
+            
+            // Calculate standard error of the slope
+            const slopeStdError = standardError / Math.sqrt(denominator);
+            
+            // Calculate t-statistic for slope
+            const tStat = slope / slopeStdError;
+            
+            // Calculate p-value for slope
+            const pValue = calculatePValue(tStat, n - 2);
+            
+            return {
+                type: 'linear-regression',
+                slope: slope,
+                intercept: intercept,
+                rSquared: rSquared,
+                standardError: standardError,
+                slopeStdError: slopeStdError,
+                tStat: tStat,
+                pValue: pValue,
+                predicted: predicted,
+                residuals: residuals,
+                equation: `y = ${slope.toFixed(4)}x + ${intercept.toFixed(4)}`,
+                significant: pValue < 0.05
+            };
+        }
+        
+        // Perform polynomial regression
+        function performPolynomialRegression(xData, yData, degree) {
+            // Prepare data for polynomial regression
+            const X = [];
+            for (let i = 0; i < xData.length; i++) {
+                const row = [];
+                for (let j = 0; j <= degree; j++) {
+                    row.push(Math.pow(xData[i], j));
+                }
+                X.push(row);
+            }
+            
+            // Perform least squares regression
+            const Xt = transpose(X);
+            const XtX = matrixMultiply(Xt, X);
+            const XtXInv = matrixInverse(XtX);
+            const XtY = matrixMultiply(Xt, yData.map(y => [y]));
+            const coefficients = matrixMultiply(XtXInv, XtY).map(row => row[0]);
+            
+            // Calculate predicted values and residuals
+            const predicted = X.map(row => {
+                let sum = 0;
+                for (let i = 0; i < row.length; i++) {
+                    sum += row[i] * coefficients[i];
+                }
+                return sum;
+            });
+            
+            const residuals = yData.map((y, i) => y - predicted[i]);
+            
+            // Calculate R-squared
+            const yMean = yData.reduce((sum, y) => sum + y, 0) / yData.length;
+            const ssTot = yData.reduce((sum, y) => sum + Math.pow(y - yMean, 2), 0);
+            const ssRes = residuals.reduce((sum, res) => sum + res * res, 0);
+            const rSquared = 1 - (ssRes / ssTot);
+            
+            // Calculate adjusted R-squared
+            const n = xData.length;
+            const p = degree + 1; // Number of parameters
+            const adjustedRSquared = 1 - ((1 - rSquared) * (n - 1) / (n - p - 1));
+            
+            // Create equation string
+            let equation = 'y = ';
+            for (let i = 0; i <= degree; i++) {
+                if (i === 0) {
+                    equation += coefficients[i].toFixed(4);
+                } else if (i === 1) {
+                    equation += ` + ${coefficients[i].toFixed(4)}x`;
+                } else {
+                    equation += ` + ${coefficients[i].toFixed(4)}x^${i}`;
+                }
+            }
+            
+            return {
+                type: 'polynomial-regression',
+                degree: degree,
+                coefficients: coefficients,
+                rSquared: rSquared,
+                adjustedRSquared: adjustedRSquared,
+                predicted: predicted,
+                residuals: residuals,
+                equation: equation
+            };
+        }
+        
+        // Perform t-test
+        function performTTest(group1, group2) {
+            // Calculate means
+            const mean1 = group1.reduce((sum, x) => sum + x, 0) / group1.length;
+            const mean2 = group2.reduce((sum, x) => sum + x, 0) / group2.length;
+            
+            // Calculate variances
+            const variance1 = group1.reduce((sum, x) => sum + Math.pow(x - mean1, 2), 0) / (group1.length - 1);
+            const variance2 = group2.reduce((sum, x) => sum + Math.pow(x - mean2, 2), 0) / (group2.length - 1);
+            
+            // Calculate pooled variance (assuming equal variances)
+            const n1 = group1.length;
+            const n2 = group2.length;
+            const pooledVariance = ((n1 - 1) * variance1 + (n2 - 1) * variance2) / (n1 + n2 - 2);
+            
+            // Calculate t-statistic
+            const t = (mean1 - mean2) / Math.sqrt(pooledVariance * (1/n1 + 1/n2));
+            
+            // Calculate degrees of freedom
+            const df = n1 + n2 - 2;
+            
+            // Calculate p-value
+            const pValue = calculatePValue(t, df);
+            
+            return {
+                type: 't-test',
+                mean1: mean1,
+                mean2: mean2,
+                variance1: variance1,
+                variance2: variance2,
+                t: t,
+                degreesOfFreedom: df,
+                pValue: pValue,
+                significant: pValue < 0.05
+            };
+        }
+        
+        // Display results
+        function displayResults(results, xData, yData) {
+            // Display summary
+            displaySummary(results);
+            
+            // Display visualization
+            displayVisualization(results, xData, yData);
+            
+            // Display detailed results
+            displayDetails(results);
+            
+            // Display code implementation
+            displayCode(results);
+            
+            // Display feedback
+            displayFeedback(results);
+        }
+        
+        // Display summary
+        function displaySummary(results) {
+            let summaryHTML = '';
+            
+            switch (results.type) {
+                case 'correlation':
+                    summaryHTML = `
+                        <h3>Correlation Analysis Summary</h3>
+                        <p><strong>Correlation Coefficient (r):</strong> ${results.r.toFixed(4)}</p>
+                        <p><strong>Coefficient of Determination (r²):</strong> ${results.rSquared.toFixed(4)}</p>
+                        <p><strong>p-value:</strong> ${formatPValue(results.pValue)}</p>
+                        <p><strong>Interpretation:</strong> There is a ${results.strength} ${results.direction} correlation between the variables${results.significant ? ', which is statistically significant' : ', which is not statistically significant'}.</p>
+                    `;
+                    break;
+                    
+                case 'linear-regression':
+                    summaryHTML = `
+                        <h3>Linear Regression Summary</h3>
+                        <p><strong>Regression Equation:</strong> ${results.equation}</p>
+                        <p><strong>Coefficient of Determination (R²):</strong> ${results.rSquared.toFixed(4)}</p>
+                        <p><strong>p-value for slope:</strong> ${formatPValue(results.pValue)}</p>
+                        <p><strong>Interpretation:</strong> The slope coefficient is ${results.significant ? 'statistically significant' : 'not statistically significant'}. ${results.rSquared > 0.7 ? 'The model explains a large portion of the variance in the dependent variable.' : results.rSquared > 0.3 ? 'The model explains a moderate portion of the variance in the dependent variable.' : 'The model explains only a small portion of the variance in the dependent variable.'}</p>
+                    `;
+                    break;
+                    
+                case 'polynomial-regression':
+                    summaryHTML = `
+                        <h3>Polynomial Regression Summary</h3>
+                        <p><strong>Regression Equation:</strong> ${results.equation}</p>
+                        <p><strong>Coefficient of Determination (R²):</strong> ${results.rSquared.toFixed(4)}</p>
+                        <p><strong>Adjusted R²:</strong> ${results.adjustedRSquared.toFixed(4)}</p>
+                        <p><strong>Interpretation:</strong> ${results.rSquared > 0.7 ? 'The polynomial model explains a large portion of the variance in the dependent variable.' : results.rSquared > 0.3 ? 'The polynomial model explains a moderate portion of the variance in the dependent variable.' : 'The polynomial model explains only a small portion of the variance in the dependent variable.'}</p>
+                    `;
+                    break;
+                    
+                case 't-test':
+                    summaryHTML = `
+                        <h3>t-Test Summary</h3>
+                        <p><strong>Group 1 Mean:</strong> ${results.mean1.toFixed(4)}</p>
+                        <p><strong>Group 2 Mean:</strong> ${results.mean2.toFixed(4)}</p>
+                        <p><strong>t-statistic:</strong> ${results.t.toFixed(4)}</p>
+                        <p><strong>p-value:</strong> ${formatPValue(results.pValue)}</p>
+                        <p><strong>Interpretation:</strong> There ${results.significant ? 'is' : 'is not'} a statistically significant difference between the means of the two groups${results.significant ? ' (p < 0.05)' : ''}.</p>
+                    `;
+                    break;
+            }
+            
+            summaryContentDiv.innerHTML = summaryHTML;
+        }
+        
+        // Display visualization
+        function displayVisualization(results, xData, yData) {
+            const ctx = document.getElementById('result-chart').getContext('2d');
+            
+            // Destroy previous chart if it exists
+            if (resultChart) {
+                resultChart.destroy();
+            }
+            
+            switch (results.type) {
+                case 'correlation':
+                case 'linear-regression':
+                case 'polynomial-regression':
+                    // Create scatter plot with regression line
+                    const scatterData = xData.map((x, i) => ({ x: x, y: yData[i] }));
+                    
+                    // Generate points for the regression line
+                    const minX = Math.min(...xData);
+                    const maxX = Math.max(...xData);
+                    const step = (maxX - minX) / 100;
+                    
+                    const regressionData = [];
+                    for (let x = minX; x <= maxX; x += step) {
+                        let y;
+                        if (results.type === 'linear-regression') {
+                            y = results.slope * x + results.intercept;
+                        } else if (results.type === 'polynomial-regression') {
+                            y = 0;
+                            for (let i = 0; i <= results.degree; i++) {
+                                y += results.coefficients[i] * Math.pow(x, i);
+                            }
+                        } else {
+                            // For correlation, use linear regression line
+                            const r = results.r;
+                            const xStdDev = results.xStdDev;
+                            const yStdDev = results.yStdDev;
+                            const xMean = xData.reduce((sum, x) => sum + x, 0) / xData.length;
+                            const yMean = yData.reduce((sum, y) => sum + y, 0) / yData.length;
+                            
+                            const slope = r * (yStdDev / xStdDev);
+                            const intercept = yMean - slope * xMean;
+                            
+                            y = slope * x + intercept;
+                        }
+                        regressionData.push({ x: x, y: y });
+                    }
+                    
+                    resultChart = new Chart(ctx, {
+                        type: 'scatter',
+                        data: {
+                            datasets: [
+                                {
+                                    label: 'Data Points',
+                                    data: scatterData,
+                                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                    pointRadius: 5,
+                                    pointHoverRadius: 7
+                                },
+                                {
+                                    label: results.type === 'polynomial-regression' ? 'Polynomial Regression Line' : 'Regression Line',
+                                    data: regressionData,
+                                    type: 'line',
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                    pointRadius: 0,
+                                    fill: false
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    type: 'linear',
+                                    position: 'bottom',
+                                    title: {
+                                        display: true,
+                                        text: 'X Variable'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Y Variable'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: results.type === 'correlation' ? 'Correlation Plot' : 
+                                          results.type === 'linear-regression' ? 'Linear Regression Plot' : 
+                                          'Polynomial Regression Plot'
+                                }
+                            }
+                        }
+                    });
+                    break;
+                    
+                case 't-test':
+                    // Create box plot for t-test
+                    resultChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Group 1', 'Group 2'],
+                            datasets: [
+                                {
+                                    label: 'Mean',
+                                    data: [results.mean1, results.mean2],
+                                    backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)'],
+                                    borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Mean Value'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 't-Test: Comparison of Means'
+                                }
+                            }
+                        }
+                    });
+                    break;
+            }
+        }
+        
+        // Display detailed results
+        function displayDetails(results) {
+            let detailsHTML = '';
+            
+            switch (results.type) {
+                case 'correlation':
+                    detailsHTML = `
+                        <h3>Detailed Correlation Results</h3>
+                        <table>
+                            <tr>
+                                <th>Statistic</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Correlation Coefficient (r)</td>
+                                <td>${results.r.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Coefficient of Determination (r²)</td>
+                                <td>${results.rSquared.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Covariance</td>
+                                <td>${results.covariance.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>X Standard Deviation</td>
+                                <td>${results.xStdDev.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Y Standard Deviation</td>
+                                <td>${results.yStdDev.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>t-statistic</td>
+                                <td>${results.t.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Degrees of Freedom</td>
+                                <td>${results.degreesOfFreedom}</td>
+                            </tr>
+                            <tr>
+                                <td>p-value</td>
+                                <td>${formatPValue(results.pValue)}</td>
+                            </tr>
+                        </table>
+                    `;
+                    break;
+                    
+                case 'linear-regression':
+                    detailsHTML = `
+                        <h3>Detailed Linear Regression Results</h3>
+                        <table>
+                            <tr>
+                                <th>Statistic</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Slope (β₁)</td>
+                                <td>${results.slope.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Intercept (β₀)</td>
+                                <td>${results.intercept.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Coefficient of Determination (R²)</td>
+                                <td>${results.rSquared.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Standard Error of the Estimate</td>
+                                <td>${results.standardError.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Standard Error of the Slope</td>
+                                <td>${results.slopeStdError.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>t-statistic for Slope</td>
+                                <td>${results.tStat.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>p-value for Slope</td>
+                                <td>${formatPValue(results.pValue)}</td>
+                            </tr>
+                        </table>
+                        
+                        <h4>Residual Analysis</h4>
+                        <p>Mean of Residuals: ${calculateMean(results.residuals).toFixed(6)}</p>
+                        <p>Standard Deviation of Residuals: ${calculateStdDev(results.residuals).toFixed(6)}</p>
+                    `;
+                    break;
+                    
+                case 'polynomial-regression':
+                    let coefficientsTable = '<table><tr><th>Term</th><th>Coefficient</th></tr>';
+                    for (let i = 0; i <= results.degree; i++) {
+                        coefficientsTable += `<tr><td>${i === 0 ? 'Constant' : i === 1 ? 'x' : 'x^' + i}</td><td>${results.coefficients[i].toFixed(6)}</td></tr>`;
+                    }
+                    coefficientsTable += '</table>';
+                    
+                    detailsHTML = `
+                        <h3>Detailed Polynomial Regression Results</h3>
+                        <h4>Coefficients</h4>
+                        ${coefficientsTable}
+                        
+                        <h4>Model Fit</h4>
+                        <table>
+                            <tr>
+                                <th>Statistic</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Coefficient of Determination (R²)</td>
+                                <td>${results.rSquared.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Adjusted R²</td>
+                                <td>${results.adjustedRSquared.toFixed(6)}</td>
+                            </tr>
+                        </table>
+                        
+                        <h4>Residual Analysis</h4>
+                        <p>Mean of Residuals: ${calculateMean(results.residuals).toFixed(6)}</p>
+                        <p>Standard Deviation of Residuals: ${calculateStdDev(results.residuals).toFixed(6)}</p>
+                    `;
+                    break;
+                    
+                case 't-test':
+                    detailsHTML = `
+                        <h3>Detailed t-Test Results</h3>
+                        <table>
+                            <tr>
+                                <th>Statistic</th>
+                                <th>Group 1</th>
+                                <th>Group 2</th>
+                            </tr>
+                            <tr>
+                                <td>Mean</td>
+                                <td>${results.mean1.toFixed(6)}</td>
+                                <td>${results.mean2.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Variance</td>
+                                <td>${results.variance1.toFixed(6)}</td>
+                                <td>${results.variance2.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Standard Deviation</td>
+                                <td>${Math.sqrt(results.variance1).toFixed(6)}</td>
+                                <td>${Math.sqrt(results.variance2).toFixed(6)}</td>
+                            </tr>
+                        </table>
+                        
+                        <h4>Test Statistics</h4>
+                        <table>
+                            <tr>
+                                <th>Statistic</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Mean Difference</td>
+                                <td>${(results.mean1 - results.mean2).toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>t-statistic</td>
+                                <td>${results.t.toFixed(6)}</td>
+                            </tr>
+                            <tr>
+                                <td>Degrees of Freedom</td>
+                                <td>${results.degreesOfFreedom}</td>
+                            </tr>
+                            <tr>
+                                <td>p-value</td>
+                                <td>${formatPValue(results.pValue)}</td>
+                            </tr>
+                        </table>
+                    `;
+                    break;
+            }
+            
+            detailsContentDiv.innerHTML = detailsHTML;
+        }
+        
+        // Display code implementation
+        function displayCode(results) {
+            let codeHTML = '';
+            
+            switch (results.type) {
+                case 'correlation':
+                    codeHTML = `import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+
+# Sample data
+x = np.array([...])  # Your X data
+y = np.array([...])  # Your Y data
+
+# Calculate correlation coefficient and p-value
+r, p_value = stats.pearsonr(x, y)
+r_squared = r**2
+
+print(f"Correlation coefficient (r): {r:.6f}")
+print(f"Coefficient of determination (r²): {r_squared:.6f}")
+print(f"p-value: {p_value:.6f}")
+
+# Create scatter plot
+plt.figure(figsize=(10, 6))
+plt.scatter(x, y, alpha=0.7)
+plt.title('Correlation Plot')
+plt.xlabel('X Variable')
+plt.ylabel('Y Variable')
+
+# Add regression line
+slope = r * (np.std(y) / np.std(x))
+intercept = np.mean(y) - slope * np.mean(x)
+x_line = np.linspace(min(x), max(x), 100)
+y_line = slope * x_line + intercept
+plt.plot(x_line, y_line, 'r-', label=f'r = {r:.4f}')
+
+plt.legend()
+plt.grid(True)
+plt.show()`;
+                    break;
+                    
+                case 'linear-regression':
+                    codeHTML = `import numpy as np
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+# Sample data
+x = np.array([...])  # Your X data
+y = np.array([...])  # Your Y data
+
+# Reshape x for sklearn
+x_reshaped = x.reshape(-1, 1)
+
+# Fit linear regression model
+model = LinearRegression()
+model.fit(x_reshaped, y)
+slope = model.coef_[0]
+intercept = model.intercept_
+
+# Predictions
+y_pred = model.predict(x_reshaped)
+residuals = y - y_pred
+
+# Calculate R-squared
+r_squared = model.score(x_reshaped, y)
+
+# For more detailed statistics using statsmodels
+X_with_const = sm.add_constant(x)
+model_sm = sm.OLS(y, X_with_const).fit()
+print(model_sm.summary())
+
+# Create plot
+plt.figure(figsize=(10, 6))
+plt.scatter(x, y, alpha=0.7)
+plt.plot(x, y_pred, 'r-', label=f'y = {slope:.4f}x + {intercept:.4f}')
+plt.title('Linear Regression')
+plt.xlabel('X Variable')
+plt.ylabel('Y Variable')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Plot residuals
+plt.figure(figsize=(10, 6))
+plt.scatter(y_pred, residuals, alpha=0.7)
+plt.axhline(y=0, color='r', linestyle='-')
+plt.title('Residual Plot')
+plt.xlabel('Predicted Values')
+plt.ylabel('Residuals')
+plt.grid(True)
+plt.show()`;
+                    break;
+                    
+                case 'polynomial-regression':
+                    codeHTML = `import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+
+# Sample data
+x = np.array([...])  # Your X data
+y = np.array([...])  # Your Y data
+
+# Reshape x for sklearn
+x_reshaped = x.reshape(-1, 1)
+
+# Define the degree of the polynomial
+degree = ${results.degree}
+
+# Transform features to include polynomial terms
+poly = PolynomialFeatures(degree=degree)
+x_poly = poly.fit_transform(x_reshaped)
+
+# Fit polynomial regression model
+model = LinearRegression()
+model.fit(x_poly, y)
+coefficients = model.coef_
+intercept = model.intercept_
+
+# Predictions
+y_pred = model.predict(x_poly)
+residuals = y - y_pred
+
+# Calculate R-squared and adjusted R-squared
+r_squared = r2_score(y, y_pred)
+n = len(y)
+p = degree + 1  # Number of parameters
+adjusted_r_squared = 1 - (1 - r_squared) * (n - 1) / (n - p - 1)
+
+print(f"Polynomial Regression (Degree {degree})")
+print(f"Intercept: {intercept:.6f}")
+for i, coef in enumerate(coefficients):
+    if i == 0:  # Skip the intercept term as it's already printed
+        continue
+    print(f"Coefficient for x^{i}: {coef:.6f}")
+print(f"R-squared: {r_squared:.6f}")
+print(f"Adjusted R-squared: {adjusted_r_squared:.6f}")
+
+# Create plot
+plt.figure(figsize=(10, 6))
+plt.scatter(x, y, alpha=0.7)
+
+# Sort x for smooth curve plotting
+x_sorted = np.sort(x)
+x_sorted_reshaped = x_sorted.reshape(-1, 1)
+x_sorted_poly = poly.transform(x_sorted_reshaped)
+y_sorted_pred = model.predict(x_sorted_poly)
+
+plt.plot(x_sorted, y_sorted_pred, 'r-', label='Polynomial Regression')
+plt.title(f'Polynomial Regression (Degree {degree})')
+plt.xlabel('X Variable')
+plt.ylabel('Y Variable')
+plt.legend()
+plt.grid(True)
+plt.show()`;
+                    break;
+                    
+                case 't-test':
+                    codeHTML = `import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+
+# Sample data
+group1 = np.array([...])  # Your Group 1 data
+group2 = np.array([...])  # Your Group 2 data
+
+# Perform independent t-test
+t_stat, p_value = stats.ttest_ind(group1, group2, equal_var=True)
+
+# Calculate means and standard deviations
+mean1 = np.mean(group1)
+mean2 = np.mean(group2)
+std1 = np.std(group1, ddof=1)
+std2 = np.std(group2, ddof=1)
+
+print(f"Group 1 Mean: {mean1:.6f}")
+print(f"Group 2 Mean: {mean2:.6f}")
+print(f"Group 1 Standard Deviation: {std1:.6f}")
+print(f"Group 2 Standard Deviation: {std2:.6f}")
+print(f"t-statistic: {t_stat:.6f}")
+print(f"p-value: {p_value:.6f}")
+print(f"Significant difference: {p_value < 0.05}")
+
+# Create bar plot
+plt.figure(figsize=(10, 6))
+means = [mean1, mean2]
+errors = [std1 / np.sqrt(len(group1)), std2 / np.sqrt(len(group2))]  # Standard errors
+
+plt.bar([0, 1], means, yerr=errors, capsize=10, alpha=0.7, color=['skyblue', 'lightcoral'])
+plt.xticks([0, 1], ['Group 1', 'Group 2'])
+plt.title('Comparison of Means')
+plt.ylabel('Mean Value')
+plt.grid(True, axis='y')
+plt.show()`;
+                    break;
+            }
+            
+            codeContentDiv.innerHTML = codeHTML;
+        }
+        
+        // Display feedback
+        function displayFeedback(results) {
+            let feedbackHTML = '';
+            
+            switch (results.type) {
+                case 'correlation':
+                    feedbackHTML = `
+                        <p>The correlation analysis shows a ${results.strength} ${results.direction} relationship between the variables (r = ${results.r.toFixed(4)}).</p>
+                        
+                        <p>The coefficient of determination (r²) is ${results.rSquared.toFixed(4)}, which means that approximately ${(results.rSquared * 100).toFixed(1)}% of the variation in one variable can be explained by the other variable.</p>
+                        
+                        <p>The p-value is ${formatPValue(results.pValue)}, which ${results.significant ? 'indicates that the correlation is statistically significant. We can reject the null hypothesis that there is no correlation between the variables.' : 'indicates that the correlation is not statistically significant. We cannot reject the null hypothesis that there is no correlation between the variables.'}</p>
+                        
+                        <h4>Interpretation Guidelines:</h4>
+                        <ul>
+                            <li>Remember that correlation does not imply causation. The relationship could be due to a third variable or coincidence.</li>
+                            <li>The strength of correlation can be interpreted as: |r| < 0.3 (weak), 0.3 ≤ |r| < 0.7 (moderate), |r| ≥ 0.7 (strong).</li>
+                            <li>Always examine the scatter plot to check for non-linear relationships or outliers that might affect the correlation.</li>
+                        </ul>
+                    `;
+                    break;
+                    
+                case 'linear-regression':
+                    feedbackHTML = `
+                        <p>The linear regression analysis produced the equation: ${results.equation}</p>
+                        
+                        <p>The slope coefficient (${results.slope.toFixed(4)}) represents the change in Y for a one-unit increase in X. ${results.slope > 0 ? 'This positive slope indicates that as X increases, Y tends to increase as well.' : 'This negative slope indicates that as X increases, Y tends to decrease.'}</p>
+                        
+                        <p>The coefficient of determination (R²) is ${results.rSquared.toFixed(4)}, which means that approximately ${(results.rSquared * 100).toFixed(1)}% of the variation in Y can be explained by X.</p>
+                        
+                        <p>The p-value for the slope is ${formatPValue(results.pValue)}, which ${results.significant ? 'indicates that the slope is statistically significant. We can reject the null hypothesis that there is no linear relationship between X and Y.' : 'indicates that the slope is not statistically significant. We cannot reject the null hypothesis that there is no linear relationship between X and Y.'}</p>
+                        
+                        <h4>Interpretation Guidelines:</h4>
+                        <ul>
+                            <li>Check the residual plot for patterns, which might indicate that a linear model is not appropriate.</li>
+                            <li>Consider the practical significance of the slope. Even if statistically significant, a very small slope might not be practically meaningful.</li>
+                            <li>Be cautious about extrapolating beyond the range of the observed data.</li>
+                            <li>R² values can be interpreted as: R² < 0.3 (weak fit), 0.3 ≤ R² < 0.7 (moderate fit), R² ≥ 0.7 (strong fit).</li>
+                        </ul>
+                    `;
+                    break;
+                    
+                case 'polynomial-regression':
+                    feedbackHTML = `
+                        <p>The polynomial regression analysis (degree ${results.degree}) produced the equation: ${results.equation}</p>
+                        
+                        <p>The coefficient of determination (R²) is ${results.rSquared.toFixed(4)}, which means that approximately ${(results.rSquared * 100).toFixed(1)}% of the variation in Y can be explained by the polynomial model.</p>
+                        
+                        <p>The adjusted R² is ${results.adjustedRSquared.toFixed(4)}, which accounts for the number of predictors in the model. ${results.adjustedRSquared < results.rSquared ? 'The adjusted R² is lower than R², suggesting that some terms in the model might not be contributing significantly.' : 'The adjusted R² is close to R², suggesting that the model is not overfitting.'}</p>
+                        
+                        <h4>Interpretation Guidelines:</h4>
+                        <ul>
+                            <li>Higher-degree polynomials can fit the data better but may lead to overfitting. Compare the adjusted R² across different degrees to find the optimal model.</li>
+                            <li>Examine the residual plot to check if the polynomial model has captured the pattern in the data.</li>
+                            <li>Be very cautious about extrapolating beyond the range of the observed data, especially with higher-degree polynomials.</li>
+                            <li>Consider the practical interpretability of the model. Higher-degree polynomials can be difficult to interpret in real-world terms.</li>
+                        </ul>
+                    `;
+                    break;
+                    
+                case 't-test':
+                    feedbackHTML = `
+                        <p>The t-test analysis compared the means of two groups: Group 1 (mean = ${results.mean1.toFixed(4)}) and Group 2 (mean = ${results.mean2.toFixed(4)}).</p>
+                        
+                        <p>The mean difference is ${(results.mean1 - results.mean2).toFixed(4)}.</p>
+                        
+                        <p>The t-statistic is ${results.t.toFixed(4)} with ${results.degreesOfFreedom} degrees of freedom.</p>
+                        
+                        <p>The p-value is ${formatPValue(results.pValue)}, which ${results.significant ? 'indicates that the difference between the means is statistically significant. We can reject the null hypothesis that the means are equal.' : 'indicates that the difference between the means is not statistically significant. We cannot reject the null hypothesis that the means are equal.'}</p>
+                        
+                        <h4>Interpretation Guidelines:</h4>
+                        <ul>
+                            <li>Statistical significance (p < 0.05) does not necessarily imply practical significance. Consider the magnitude of the difference in context.</li>
+                            <li>The t-test assumes that the data in each group is normally distributed and that the variances are equal (for the equal variance t-test).</li>
+                            <li>Consider calculating the effect size (e.g., Cohen's d) to quantify the magnitude of the difference.</li>
+                            <li>Be cautious about making causal inferences, especially if the groups were not randomly assigned.</li>
+                        </ul>
+                    `;
+                    break;
+            }
+            
+            feedbackContentDiv.innerHTML = feedbackHTML;
+        }
+        
+        // Helper function to calculate mean
+        function calculateMean(data) {
+            return data.reduce((sum, value) => sum + value, 0) / data.length;
+        }
+        
+        // Helper function to calculate standard deviation
+        function calculateStdDev(data) {
+            const mean = calculateMean(data);
+            const variance = data.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / data.length;
+            return Math.sqrt(variance);
+        }
+        
+        // Helper function to format p-value
+        function formatPValue(pValue) {
+            if (pValue < 0.001) {
+                return '< 0.001';
+            } else {
+                return pValue.toFixed(4);
+            }
+        }
+        
+        // Helper function to calculate approximate p-value from t-statistic
+        function calculatePValue(t, df) {
+            // This is a very rough approximation
+            // For a more accurate calculation, use a proper statistical library
+            const absT = Math.abs(t);
+            
+            // Approximate p-value for two-tailed test
+            if (absT < 1) {
+                return 0.5 - 0.3 * absT;
+            } else if (absT < 3) {
+                return 0.3 / absT;
+            } else {
+                return 0.01 / absT;
+            }
+        }
+        
+        // Matrix operations for polynomial regression
+        function transpose(matrix) {
+            const rows = matrix.length;
+            const cols = matrix[0].length;
+            const result = [];
+            
+            for (let j = 0; j < cols; j++) {
+                result[j] = [];
+                for (let i = 0; i < rows; i++) {
+                    result[j][i] = matrix[i][j];
+                }
+            }
+            
+            return result;
+        }
+        
+        function matrixMultiply(a, b) {
+            const aRows = a.length;
+            const aCols = a[0].length;
+            const bRows = b.length;
+            const bCols = Array.isArray(b[0]) ? b[0].length : 1;
+            
+            if (aCols !== bRows) {
+                throw new Error('Matrix dimensions do not match for multiplication');
+            }
+            
+            const result = [];
+            
+            for (let i = 0; i < aRows; i++) {
+                result[i] = [];
+                for (let j = 0; j < bCols; j++) {
+                    let sum = 0;
+                    for (let k = 0; k < aCols; k++) {
+                        if (Array.isArray(b[k])) {
+                            sum += a[i][k] * b[k][j];
+                        } else {
+                            sum += a[i][k] * b[k];
+                        }
+                    }
+                    result[i][j] = sum;
+                }
+            }
+            
+            return result;
+        }
+        
+        function matrixInverse(matrix) {
+            // For simplicity, we'll use math.js library for matrix inversion
+            return math.inv(matrix);
+        }
+        
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>

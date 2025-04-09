@@ -1,0 +1,47 @@
+{
+    "total": 85,
+    "page": 1,
+    "pageSize": 10,
+    "items": [
+        {
+            "indicatorCode": "BG.GSR.NFSV.GD.ZS",
+            "indicatorName": "Trade in services (% of GDP)"
+        },
+        {
+            "indicatorCode": "BM.KLT.DINV.WD.GD.ZS",
+            "indicatorName": "Foreign direct investment, net outflows (% of GDP)"
+        },
+        {
+            "indicatorCode": "BN.CAB.XOKA.GD.ZS",
+            "indicatorName": "Current account balance (% of GDP)"
+        },
+        {
+            "indicatorCode": "BX.KLT.DINV.WD.GD.ZS",
+            "indicatorName": "Foreign direct investment, net inflows (% of GDP)"
+        },
+        {
+            "indicatorCode": "BX.TRF.PWKR.DT.GD.ZS",
+            "indicatorName": "Personal remittances, received (% of GDP)"
+        },
+        {
+            "indicatorCode": "CM.MKT.LCAP.GD.ZS",
+            "indicatorName": "Market capitalization of listed domestic companies (% of GDP)"
+        },
+        {
+            "indicatorCode": "CM.MKT.TRAD.GD.ZS",
+            "indicatorName": "Stocks traded, total value (% of GDP)"
+        },
+        {
+            "indicatorCode": "EG.EGY.PRIM.PP.KD",
+            "indicatorName": "Energy intensity level of primary energy (MJ/$2017 PPP GDP)"
+        },
+        {
+            "indicatorCode": "EG.GDP.PUSE.KO.PP",
+            "indicatorName": "GDP per unit of energy use (PPP $ per kg of oil equivalent)"
+        },
+        {
+            "indicatorCode": "EG.GDP.PUSE.KO.PP.KD",
+            "indicatorName": "GDP per unit of energy use (constant 2021 PPP $ per kg of oil equivalent)"
+        }
+    ]
+}

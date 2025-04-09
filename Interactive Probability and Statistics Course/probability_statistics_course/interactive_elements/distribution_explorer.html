@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribution Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 200px;
+        }
+        .parameter-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .parameter-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        select, input {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        input[type="range"] {
+            width: 150px;
+        }
+        input[type="number"] {
+            width: 60px;
+        }
+        label {
+            font-weight: bold;
+        }
+        .visualization {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .chart-container {
+            flex: 1;
+            min-width: 400px;
+            height: 400px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .stats {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .probability-calculator {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+        }
+        .explanation {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 8px;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .formula {
+            font-family: 'Courier New', monospace;
+            background-color: #f9f9f9;
+            padding: 5px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Distribution Explorer</h1>
+    
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <label for="distributionType">Distribution Type:</label>
+                <select id="distributionType">
+                    <optgroup label="Discrete Distributions">
+                        <option value="bernoulli">Bernoulli</option>
+                        <option value="binomial">Binomial</option>
+                        <option value="poisson">Poisson</option>
+                        <option value="geometric">Geometric</option>
+                    </optgroup>
+                    <optgroup label="Continuous Distributions">
+                        <option value="normal" selected>Normal</option>
+                        <option value="uniform">Uniform</option>
+                        <option value="exponential">Exponential</option>
+                        <option value="gamma">Gamma</option>
+                        <option value="beta">Beta</option>
+                    </optgroup>
+                </select>
+                
+                <div class="parameter-controls" id="parameterControls">
+                    <!-- Parameters will be dynamically added here -->
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Distribution Properties:</label>
+                <div id="distributionProperties">
+                    <!-- Properties will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="visualization">
+            <div class="chart-container">
+                <h2>Probability Distribution</h2>
+                <canvas id="distributionChart"></canvas>
+            </div>
+            
+            <div class="stats">
+                <h2>Distribution Statistics</h2>
+                <table id="statsTable">
+                    <tr>
+                        <th>Statistic</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Mean</td>
+                        <td id="meanValue">-</td>
+                    </tr>
+                    <tr>
+                        <td>Median</td>
+                        <td id="medianValue">-</td>
+                    </tr>
+                    <tr>
+                        <td>Mode</td>
+                        <td id="modeValue">-</td>
+                    </tr>
+                    <tr>
+                        <td>Variance</td>
+                        <td id="varianceValue">-</td>
+                    </tr>
+                    <tr>
+                        <td>Standard Deviation</td>
+                        <td id="stdDevValue">-</td>
+                    </tr>
+                    <tr>
+                        <td>Skewness</td>
+                        <td id="skewnessValue">-</td>
+                    </tr>
+                    <tr>
+                        <td>Kurtosis</td>
+                        <td id="kurtosisValue">-</td>
+                    </tr>
+                </table>
+                
+                <div class="probability-calculator">
+                    <h3>Probability Calculator</h3>
+                    <div class="control-group">
+                        <label for="probType">Calculate Probability:</label>
+                        <select id="probType">
+                            <option value="lessThan">P(X ≤ x)</option>
+                            <option value="greaterThan">P(X ≥ x)</option>
+                            <option value="between">P(a ≤ X ≤ b)</option>
+                            <option value="equal">P(X = x) [Discrete only]</option>
+                        </select>
+                    </div>
+                    
+                    <div class="parameter-control">
+                        <label for="probValueA">Value a:</label>
+                        <input type="number" id="probValueA" step="0.1" value="0">
+                    </div>
+                    
+                    <div class="parameter-control" id="probValueBContainer" style="display: none;">
+                        <label for="probValueB">Value b:</label>
+                        <input type="number" id="probValueB" step="0.1" value="0">
+                    </div>
+                    
+                    <div style="margin-top: 10px;">
+                        <strong>Result: </strong><span id="probResult">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="explanation" id="distributionExplanation">
+            <!-- Explanation will be dynamically added here -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
+    <script>
+        // Distribution definitions and functions
+        const distributions = {
+            // Discrete Distributions
+            bernoulli: {
+                name: "Bernoulli Distribution",
+                parameters: [
+                    { name: "p", label: "Success Probability", min: 0, max: 1, step: 0.01, default: 0.5 }
+                ],
+                pmf: (x, params) => {
+                    const p = params.p;
+                    if (x === 0) return 1 - p;
+                    if (x === 1) return p;
+                    return 0;
+                },
+                cdf: (x, params) => {
+                    const p = params.p;
+                    if (x < 0) return 0;
+                    if (x >= 0 && x < 1) return 1 - p;
+                    return 1;
+                },
+                mean: (params) => params.p,
+                median: (params) => {
+                    const p = params.p;
+                    if (p < 0.5) return 0;
+                    if (p > 0.5) return 1;
+                    return 0.5; // Convention when p = 0.5
+                },
+                mode: (params) => {
+                    const p = params.p;
+                    if (p < 0.5) return 0;
+                    if (p > 0.5) return 1;
+                    return "0 and 1"; // Bimodal when p = 0.5
+                },
+                variance: (params) => params.p * (1 - params.p),
+                skewness: (params) => {
+                    const p = params.p;
+                    return (1 - 2 * p) / Math.sqrt(p * (1 - p));
+                },
+                kurtosis: (params) => {
+                    const p = params.p;
+                    return (1 - 6 * p * (1 - p)) / (p * (1 - p));
+                },
+                support: (params) => [0, 1],
+                isDiscrete: true,
+                formula: "P(X = x) = p^x * (1-p)^(1-x) for x ∈ {0, 1}",
+                description: "The Bernoulli distribution models a single trial with two possible outcomes: success (1) or failure (0). It is the simplest discrete probability distribution and forms the foundation for many other distributions."
+            },
+            binomial: {
+                name: "Binomial Distribution",
+                parameters: [
+                    { name: "n", label: "Number of Trials", min: 1, max: 100, step: 1, default: 10 },
+                    { name: "p", label: "Success Probability", min: 0, max: 1, step: 0.01, default: 0.5 }
+                ],
+                pmf: (x, params) => {
+                    const n = params.n;
+                    const p = params.p;
+                    if (x < 0 || x > n || !Number.isInteger(x)) return 0;
+                    return math.combinations(n, x) * Math.pow(p, x) * Math.pow(1 - p, n - x);
+                },
+                cdf: (x, params) => {
+                    const n = params.n;
+                    const p = params.p;
+                    if (x < 0) return 0;
+                    if (x >= n) return 1;
+                    
+                    let sum = 0;
+                    for (let i = 0; i <= Math.floor(x); i++) {
+                        sum += math.combinations(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
+                    }
+                    return sum;
+                },
+                mean: (params) => params.n * params.p,
+                median: (params) => {
+                    const n = params.n;
+                    const p = params.p;
+                    // Approximation for median
+                    return Math.floor(n * p + 0.5);
+                },
+                mode: (params) => {
+                    const n = params.n;
+                    const p = params.p;
+                    // Mode formula for binomial
+                    const mode = Math.floor((n + 1) * p);
+                    return mode;
+                },
+                variance: (params) => params.n * params.p * (1 - params.p),
+                skewness: (params) => {
+                    const n = params.n;
+                    const p = params.p;
+                    return (1 - 2 * p) / Math.sqrt(n * p * (1 - p));
+                },
+                kurtosis: (params) => {
+                    const n = params.n;
+                    const p = params.p;
+                    return 3 + (1 - 6 * p * (1 - p)) / (n * p * (1 - p));
+                },
+                support: (params) => [0, params.n],
+                isDiscrete: true,
+                formula: "P(X = k) = (n choose k) * p^k * (1-p)^(n-k) for k = 0, 1, 2, ..., n",
+                description: "The binomial distribution models the number of successes in n independent Bernoulli trials, each with probability p of success. It is commonly used in situations where we're counting the number of times a particular event occurs in a fixed number of trials."
+            },
+            poisson: {
+                name: "Poisson Distribution",
+                parameters: [
+                    { name: "lambda", label: "Rate (λ)", min: 0.1, max: 20, step: 0.1, default: 5 }
+                ],
+                pmf: (x, params) => {
+                    const lambda = params.lambda;
+                    if (x < 0 || !Number.isInteger(x)) return 0;
+                    return Math.exp(-lambda) * Math.pow(lambda, x) / math.factorial(x);
+                },
+                cdf: (x, params) => {
+                    const lambda = params.lambda;
+                    if (x < 0) return 0;
+                    
+                    let sum = 0;
+                    for (let i = 0; i <= Math.floor(x); i++) {
+                        sum += Math.exp(-lambda) * Math.pow(lambda, i) / math.factorial(i);
+                    }
+                    return sum;
+                },
+                mean: (params) => params.lambda,
+                median: (params) => {
+                    const lambda = params.lambda;
+                    // Approximation for median
+                    return Math.floor(lambda + 1/3 - 0.02/lambda);
+                },
+                mode: (params) => {
+                    const lambda = params.lambda;
+                    return Math.floor(lambda);
+                },
+                variance: (params) => params.lambda,
+                skewness: (params) => 1 / Math.sqrt(params.lambda),
+                kurtosis: (params) => 3 + 1 / params.lambda,
+                support: (params) => [0, Math.max(20, 3 * params.lambda)], // Practical support
+                isDiscrete: true,
+                formula: "P(X = k) = (λ^k * e^(-λ)) / k! for k = 0, 1, 2, ...",
+                description: "The Poisson distribution models the number of events occurring in a fixed interval of time or space, assuming these events occur independently and at a constant average rate. It's commonly used for modeling rare events like the number of calls to a call center, website visits, or radioactive decay events."
+            },
+            geometric: {
+                name: "Geometric Distribution",
+                parameters: [
+                    { name: "p", label: "Success Probability", min: 0.01, max: 1, step: 0.01, default: 0.3 }
+                ],
+                pmf: (x, params) => {
+                    const p = params.p;
+                    if (x < 1 || !Number.isInteger(x)) return 0;
+                    return Math.pow(1 - p, x - 1) * p;
+                },
+                cdf: (x, params) => {
+                    const p = params.p;
+                    if (x < 1) return 0;
+                    return 1 - Math.pow(1 - p, Math.floor(x));
+                },
+                mean: (params) => 1 / params.p,
+                median: (params) => {
+                    const p = params.p;
+                    // Median formula for geometric
+                    return Math.ceil(-1 / Math.log2(1 - p));
+                },
+                mode: (params) => 1, // Mode is always 1 for geometric
+                variance: (params) => (1 - params.p) / Math.pow(params.p, 2),
+                skewness: (params) => {
+                    const p = params.p;
+                    return (2 - p) / Math.sqrt(1 - p);
+                },
+                kurtosis: (params) => {
+                    const p = params.p;
+                    return 6 + p*p/(1-p);
+                },
+                support: (params) => [1, Math.min(100, Math.ceil(10 / params.p))], // Practical support
+                isDiscrete: true,
+                formula: "P(X = k) = (1-p)^(k-1) * p for k = 1, 2, 3, ...",
+                description: "The geometric distribution models the number of trials needed to achieve the first success in a sequence of independent Bernoulli trials. It's used in scenarios like the number of attempts until a success, the number of failures before the first success, or waiting times in discrete time."
+            },
+            
+            // Continuous Distributions
+            normal: {
+                name: "Normal Distribution",
+                parameters: [
+                    { name: "mu", label: "Mean (μ)", min: -10, max: 10, step: 0.1, default: 0 },
+                    { name: "sigma", label: "Standard Deviation (σ)", min: 0.1, max: 5, step: 0.1, default: 1 }
+                ],
+                pdf: (x, params) => {
+                    const mu = params.mu;
+                    const sigma = params.sigma;
+                    return (1 / (sigma * Math.sqrt(2 * Math.PI))) * 
+                           Math.exp(-Math.pow(x - mu, 2) / (2 * Math.pow(sigma, 2)));
+                },
+                cdf: (x, params) => {
+                    const mu = params.mu;
+                    const sigma = params.sigma;
+                    return 0.5 * (1 + math.erf((x - mu) / (sigma * Math.sqrt(2))));
+                },
+                mean: (params) => params.mu,
+                median: (params) => params.mu,
+                mode: (params) => params.mu,
+                variance: (params) => Math.pow(params.sigma, 2),
+                skewness: (params) => 0,
+                kurtosis: (params) => 3,
+                support: (params) => [params.mu - 4 * params.sigma, params.mu + 4 * params.sigma],
+                isDiscrete: false,
+                formula: "f(x) = (1/(σ√(2π))) * e^(-(x-μ)²/(2σ²)) for -∞ < x < ∞",
+                description: "The normal distribution, also known as the Gaussian distribution, is a continuous probability distribution that is symmetric about its mean. It is one of the most important distributions in statistics due to the Central Limit Theorem, which states that the sum of a large number of independent random variables tends toward a normal distribution."
+            },
+            uniform: {
+                name: "Uniform Distribution",
+                parameters: [
+                    { name: "a", label: "Minimum (a)", min: -10, max: 10, step: 0.1, default: 0 },
+                    { name: "b", label: "Maximum (b)", min: -10, max: 10, step: 0.1, default: 1 }
+                ],
+                pdf: (x, params) => {
+                    const a = Math.min(params.a, params.b);
+                    const b = Math.max(params.a, params.b);
+                    if (x < a || x > b) return 0;
+                    return 1 / (b - a);
+                },
+                cdf: (x, params) => {
+                    const a = Math.min(params.a, params.b);
+                    const b = Math.max(params.a, params.b);
+                    if (x < a) return 0;
+                    if (x > b) return 1;
+                    return (x - a) / (b - a);
+                },
+                mean: (params) => {
+                    const a = Math.min(params.a, params.b);
+                    const b = Math.max(params.a, params.b);
+                    return (a + b) / 2;
+                },
+                median: (params) => {
+                    const a = Math.min(params.a, params.b);
+                    const b = Math.max(params.a, params.b);
+                    return (a + b) / 2;
+                },
+                mode: (params) => "Any value in [a, b]",
+                variance: (params) => {
+                    const a = Math.min(params.a, params.b);
+                    const b = Math.max(params.a, params.b);
+                    return Math.pow(b - a, 2) / 12;
+                },
+                skewness: (params) => 0,
+                kurtosis: (params) => 1.8, // Excess kurtosis is -1.2, total is 3-1.2=1.8
+                support: (params) => [Math.min(params.a, params.b), Math.max(params.a, params.b)],
+                isDiscrete: false,
+                formula: "f(x) = 1/(b-a) for a ≤ x ≤ b",
+                description: "The uniform distribution is a continuous probability distribution where all values in an interval [a, b] are equally likely. It is often used to model random selection from a finite set or as a prior distribution in Bayesian analysis when no information is available."
+            },
+            exponential: {
+                name: "Exponential Distribution",
+                parameters: [
+                    { name: "lambda", label: "Rate (λ)", min: 0.1, max: 5, step: 0.1, default: 1 }
+                ],
+                pdf: (x, params) => {
+                    const lambda = params.lambda;
+                    if (x < 0) return 0;
+                    return lambda * Math.exp(-lambda * x);
+                },
+                cdf: (x, params) => {
+                    const lambda = params.lambda;
+                    if (x < 0) return 0;
+                    return 1 - Math.exp(-lambda * x);
+                },
+                mean: (params) => 1 / params.lambda,
+                median: (params) => Math.log(2) / params.lambda,
+                mode: (params) => 0,
+                variance: (params) => 1 / Math.pow(params.lambda, 2),
+                skewness: (params) => 2,
+                kurtosis: (params) => 9, // Excess kurtosis is 6, total is 3+6=9
+                support: (params) => [0, 5 / params.lambda],
+                isDiscrete: false,
+                formula: "f(x) = λe^(-λx) for x ≥ 0",
+                description: "The exponential distribution models the time between events in a Poisson process, where events occur continuously and independently at a constant average rate. It has the 'memoryless' property, meaning that the probability of waiting an additional time t is independent of how long you've already waited."
+            },
+            gamma: {
+                name: "Gamma Distribution",
+                parameters: [
+                    { name: "alpha", label: "Shape (α)", min: 0.1, max: 10, step: 0.1, default: 2 },
+                    { name: "beta", label: "Rate (β)", min: 0.1, max: 5, step: 0.1, default: 1 }
+                ],
+                pdf: (x, params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    if (x < 0) return 0;
+                    return Math.pow(beta, alpha) * Math.pow(x, alpha - 1) * 
+                           Math.exp(-beta * x) / math.gamma(alpha);
+                },
+                cdf: (x, params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    if (x < 0) return 0;
+                    // Approximation using incomplete gamma function
+                    return math.gamma(alpha, 0, beta * x) / math.gamma(alpha);
+                },
+                mean: (params) => params.alpha / params.beta,
+                median: (params) => {
+                    // Approximation for median
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    return (alpha - 1/3) / beta;
+                },
+                mode: (params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    return alpha > 1 ? (alpha - 1) / beta : "Undefined (at x=0)";
+                },
+                variance: (params) => params.alpha / Math.pow(params.beta, 2),
+                skewness: (params) => 2 / Math.sqrt(params.alpha),
+                kurtosis: (params) => 3 + 6 / params.alpha,
+                support: (params) => [0, 5 * params.alpha / params.beta],
+                isDiscrete: false,
+                formula: "f(x) = (β^α * x^(α-1) * e^(-βx)) / Γ(α) for x > 0",
+                description: "The gamma distribution is a two-parameter family of continuous probability distributions. It's a generalization of the exponential distribution and is used to model waiting times, rainfall amounts, and other positive-valued random variables."
+            },
+            beta: {
+                name: "Beta Distribution",
+                parameters: [
+                    { name: "alpha", label: "Shape (α)", min: 0.1, max: 10, step: 0.1, default: 2 },
+                    { name: "beta", label: "Shape (β)", min: 0.1, max: 10, step: 0.1, default: 2 }
+                ],
+                pdf: (x, params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    if (x < 0 || x > 1) return 0;
+                    return Math.pow(x, alpha - 1) * Math.pow(1 - x, beta - 1) / 
+                           math.beta(alpha, beta);
+                },
+                cdf: (x, params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    if (x < 0) return 0;
+                    if (x > 1) return 1;
+                    // Approximation using regularized incomplete beta function
+                    return math.betaRegularized(alpha, beta, x);
+                },
+                mean: (params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    return alpha / (alpha + beta);
+                },
+                median: (params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    // Approximation for median
+                    if (alpha === beta) return 0.5;
+                    if (alpha > 1 && beta > 1) {
+                        return (alpha - 1/3) / (alpha + beta - 2/3);
+                    }
+                    return "Approximation not available";
+                },
+                mode: (params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    if (alpha > 1 && beta > 1) {
+                        return (alpha - 1) / (alpha + beta - 2);
+                    }
+                    if (alpha < 1 && beta < 1) return "0 and 1 (bimodal)";
+                    if (alpha < 1) return "1";
+                    if (beta < 1) return "0";
+                    return "Undefined";
+                },
+                variance: (params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    return (alpha * beta) / (Math.pow(alpha + beta, 2) * (alpha + beta + 1));
+                },
+                skewness: (params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    return 2 * (beta - alpha) * Math.sqrt(alpha + beta + 1) / 
+                           ((alpha + beta + 2) * Math.sqrt(alpha * beta));
+                },
+                kurtosis: (params) => {
+                    const alpha = params.alpha;
+                    const beta = params.beta;
+                    const num = 3 * (alpha + beta + 1) * (2 * (alpha + beta)^2 + alpha * beta * (alpha + beta - 6));
+                    const den = alpha * beta * (alpha + beta + 2) * (alpha + beta + 3);
+                    return 3 + num / den;
+                },
+                support: (params) => [0, 1],
+                isDiscrete: false,
+                formula: "f(x) = (x^(α-1) * (1-x)^(β-1)) / B(α,β) for 0 ≤ x ≤ 1",
+                description: "The beta distribution is a family of continuous probability distributions defined on the interval [0, 1]. It's often used to model random variables that are constrained to fall between 0 and 1, such as proportions, probabilities, or rates."
+            }
+        };
+        
+        // DOM elements
+        const distributionTypeSelect = document.getElementById('distributionType');
+        const parameterControlsDiv = document.getElementById('parameterControls');
+        const distributionPropertiesDiv = document.getElementById('distributionProperties');
+        const distributionExplanationDiv = document.getElementById('distributionExplanation');
+        const canvas = document.getElementById('distributionChart');
+        
+        // Stats elements
+        const meanValueElement = document.getElementById('meanValue');
+        const medianValueElement = document.getElementById('medianValue');
+        const modeValueElement = document.getElementById('modeValue');
+        const varianceValueElement = document.getElementById('varianceValue');
+        const stdDevValueElement = document.getElementById('stdDevValue');
+        const skewnessValueElement = document.getElementById('skewnessValue');
+        const kurtosisValueElement = document.getElementById('kurtosisValue');
+        
+        // Probability calculator elements
+        const probTypeSelect = document.getElementById('probType');
+        const probValueAInput = document.getElementById('probValueA');
+        const probValueBInput = document.getElementById('probValueB');
+        const probValueBContainer = document.getElementById('probValueBContainer');
+        const probResultElement = document.getElementById('probResult');
+        
+        // Chart instance
+        let chart = null;
+        
+        // Current distribution and parameters
+        let currentDistribution = null;
+        let currentParams = {};
+        
+        // Initialize the application
+        function init() {
+            // Set up event listeners
+            distributionTypeSelect.addEventListener('change', updateDistribution);
+            probTypeSelect.addEventListener('change', updateProbabilityCalculator);
+            probValueAInput.addEventListener('input', calculateProbability);
+            probValueBInput.addEventListener('input', calculateProbability);
+            
+            // Initialize with default distribution
+            updateDistribution();
+        }
+        
+        // Update the distribution based on the selected type
+        function updateDistribution() {
+            const distributionType = distributionTypeSelect.value;
+            currentDistribution = distributions[distributionType];
+            
+            // Clear parameter controls
+            parameterControlsDiv.innerHTML = '';
+            
+            // Add parameter controls for the selected distribution
+            currentParams = {};
+            currentDistribution.parameters.forEach(param => {
+                const paramDiv = document.createElement('div');
+                paramDiv.className = 'parameter-control';
+                
+                const label = document.createElement('label');
+                label.textContent = param.label + ':';
+                label.htmlFor = `param-${param.name}`;
+                
+                const input = document.createElement('input');
+                input.type = 'range';
+                input.id = `param-${param.name}`;
+                input.min = param.min;
+                input.max = param.max;
+                input.step = param.step;
+                input.value = param.default;
+                
+                const valueDisplay = document.createElement('span');
+                valueDisplay.id = `param-${param.name}-value`;
+                valueDisplay.textContent = param.default;
+                
+                // Set initial parameter value
+                currentParams[param.name] = param.default;
+                
+                // Add event listener to update the distribution when parameter changes
+                input.addEventListener('input', () => {
+                    currentParams[param.name] = parseFloat(input.value);
+                    valueDisplay.textContent = input.value;
+                    updateVisualization();
+                    updateStats();
+                    calculateProbability();
+                });
+                
+                paramDiv.appendChild(label);
+                paramDiv.appendChild(input);
+                paramDiv.appendChild(valueDisplay);
+                
+                parameterControlsDiv.appendChild(paramDiv);
+            });
+            
+            // Update distribution properties
+            updateDistributionProperties();
+            
+            // Update visualization
+            updateVisualization();
+            
+            // Update statistics
+            updateStats();
+            
+            // Update explanation
+            updateExplanation();
+            
+            // Update probability calculator
+            updateProbabilityCalculator();
+            calculateProbability();
+        }
+        
+        // Update the distribution properties display
+        function updateDistributionProperties() {
+            distributionPropertiesDiv.innerHTML = '';
+            
+            // Add formula
+            const formulaDiv = document.createElement('div');
+            formulaDiv.innerHTML = `<strong>Formula:</strong><br><div class="formula">${currentDistribution.formula}</div>`;
+            distributionPropertiesDiv.appendChild(formulaDiv);
+            
+            // Add type
+            const typeDiv = document.createElement('div');
+            typeDiv.innerHTML = `<strong>Type:</strong> ${currentDistribution.isDiscrete ? 'Discrete' : 'Continuous'}`;
+            distributionPropertiesDiv.appendChild(typeDiv);
+            
+            // Add support
+            const supportDiv = document.createElement('div');
+            const support = currentDistribution.support(currentParams);
+            supportDiv.innerHTML = `<strong>Support:</strong> [${support[0]}, ${support[1]}]`;
+            distributionPropertiesDiv.appendChild(supportDiv);
+        }
+        
+        // Update the visualization
+        function updateVisualization() {
+            const ctx = canvas.getContext('2d');
+            
+            // Destroy previous chart if it exists
+            if (chart) {
+                chart.destroy();
+            }
+            
+            // Get the support range
+            const support = currentDistribution.support(currentParams);
+            const min = support[0];
+            const max = support[1];
+            
+            // Generate data points
+            const labels = [];
+            const data = [];
+            
+            if (currentDistribution.isDiscrete) {
+                // For discrete distributions
+                for (let x = min; x <= max; x++) {
+                    const y = currentDistribution.pmf(x, currentParams);
+                    if (y > 0.0001) { // Only include significant probabilities
+                        labels.push(x);
+                        data.push(y);
+                    }
+                }
+                
+                // Create bar chart
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Probability Mass Function',
+                            data: data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'x'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'P(X = x)'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } else {
+                // For continuous distributions
+                const step = (max - min) / 200;
+                for (let x = min; x <= max; x += step) {
+                    labels.push(x);
+                    data.push(currentDistribution.pdf(x, currentParams));
+                }
+                
+                // Create line chart
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Probability Density Function',
+                            data: data,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderWidth: 2,
+                            tension: 0.1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: {
+                                    display: true,
+                                    text: 'x'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'f(x)'
+                                },
+                                beginAtZero: true
+                            }
+                        },
+                        elements: {
+                            point: {
+                                radius: 0
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Update the statistics display
+        function updateStats() {
+            meanValueElement.textContent = formatValue(currentDistribution.mean(currentParams));
+            medianValueElement.textContent = formatValue(currentDistribution.median(currentParams));
+            modeValueElement.textContent = formatValue(currentDistribution.mode(currentParams));
+            varianceValueElement.textContent = formatValue(currentDistribution.variance(currentParams));
+            
+            const variance = currentDistribution.variance(currentParams);
+            stdDevValueElement.textContent = formatValue(Math.sqrt(variance));
+            
+            skewnessValueElement.textContent = formatValue(currentDistribution.skewness(currentParams));
+            kurtosisValueElement.textContent = formatValue(currentDistribution.kurtosis(currentParams));
+        }
+        
+        // Update the explanation
+        function updateExplanation() {
+            distributionExplanationDiv.innerHTML = `
+                <h2>${currentDistribution.name}</h2>
+                <p>${currentDistribution.description}</p>
+                <h3>Applications</h3>
+                <ul>
+                    ${getApplications(distributionTypeSelect.value)}
+                </ul>
+                <h3>Properties</h3>
+                <ul>
+                    <li><strong>Mean:</strong> ${getPropertyFormula(distributionTypeSelect.value, 'mean')}</li>
+                    <li><strong>Variance:</strong> ${getPropertyFormula(distributionTypeSelect.value, 'variance')}</li>
+                    <li><strong>Skewness:</strong> ${getPropertyFormula(distributionTypeSelect.value, 'skewness')}</li>
+                </ul>
+            `;
+        }
+        
+        // Update the probability calculator
+        function updateProbabilityCalculator() {
+            const probType = probTypeSelect.value;
+            
+            // Show/hide second value input for 'between' option
+            probValueBContainer.style.display = probType === 'between' ? 'flex' : 'none';
+            
+            // Disable 'equal' option for continuous distributions
+            const equalOption = probTypeSelect.querySelector('option[value="equal"]');
+            if (equalOption) {
+                equalOption.disabled = !currentDistribution.isDiscrete;
+                if (!currentDistribution.isDiscrete && probType === 'equal') {
+                    probTypeSelect.value = 'lessThan';
+                }
+            }
+            
+            calculateProbability();
+        }
+        
+        // Calculate probability based on selected options
+        function calculateProbability() {
+            const probType = probTypeSelect.value;
+            const valueA = parseFloat(probValueAInput.value);
+            const valueB = parseFloat(probValueBInput.value);
+            
+            let result = 0;
+            
+            if (currentDistribution.isDiscrete) {
+                switch (probType) {
+                    case 'lessThan':
+                        result = currentDistribution.cdf(valueA, currentParams);
+                        break;
+                    case 'greaterThan':
+                        result = 1 - currentDistribution.cdf(valueA - 1, currentParams);
+                        break;
+                    case 'between':
+                        result = currentDistribution.cdf(Math.max(valueA, valueB), currentParams) - 
+                                 currentDistribution.cdf(Math.min(valueA, valueB) - 1, currentParams);
+                        break;
+                    case 'equal':
+                        result = currentDistribution.pmf(valueA, currentParams);
+                        break;
+                }
+            } else {
+                switch (probType) {
+                    case 'lessThan':
+                        result = currentDistribution.cdf(valueA, currentParams);
+                        break;
+                    case 'greaterThan':
+                        result = 1 - currentDistribution.cdf(valueA, currentParams);
+                        break;
+                    case 'between':
+                        result = currentDistribution.cdf(Math.max(valueA, valueB), currentParams) - 
+                                 currentDistribution.cdf(Math.min(valueA, valueB), currentParams);
+                        break;
+                }
+            }
+            
+            probResultElement.textContent = formatValue(result);
+        }
+        
+        // Helper function to format values for display
+        function formatValue(value) {
+            if (typeof value === 'number') {
+                return value.toFixed(4);
+            }
+            return value;
+        }
+        
+        // Helper function to get applications for a distribution
+        function getApplications(distributionType) {
+            const applications = {
+                bernoulli: `
+                    <li>Modeling success/failure outcomes in a single trial</li>
+                    <li>Coin flips (heads/tails)</li>
+                    <li>Pass/fail tests</li>
+                    <li>Yes/no survey responses</li>
+                `,
+                binomial: `
+                    <li>Quality control (number of defective items in a batch)</li>
+                    <li>Election polling (number of voters supporting a candidate)</li>
+                    <li>Medical trials (number of patients responding to treatment)</li>
+                    <li>Sports statistics (number of successful attempts)</li>
+                `,
+                poisson: `
+                    <li>Call center arrivals per hour</li>
+                    <li>Number of typos per page</li>
+                    <li>Traffic accidents per day in a city</li>
+                    <li>Radioactive decay events</li>
+                    <li>Website visits per minute</li>
+                `,
+                geometric: `
+                    <li>Number of trials until first success</li>
+                    <li>Number of coin flips until first heads</li>
+                    <li>Number of attempts until passing a test</li>
+                    <li>Number of job applications until getting hired</li>
+                `,
+                normal: `
+                    <li>Heights and weights in a population</li>
+                    <li>Measurement errors</li>
+                    <li>IQ scores</li>
+                    <li>Stock price returns</li>
+                    <li>Sampling distributions (via Central Limit Theorem)</li>
+                `,
+                uniform: `
+                    <li>Random number generation</li>
+                    <li>Rounding errors in measurements</li>
+                    <li>Arrival times within a fixed interval</li>
+                    <li>Prior distributions in Bayesian statistics when no information is available</li>
+                `,
+                exponential: `
+                    <li>Time between events in a Poisson process</li>
+                    <li>Lifetime of electronic components</li>
+                    <li>Time between customer arrivals</li>
+                    <li>Radioactive decay</li>
+                    <li>Length of phone calls</li>
+                `,
+                gamma: `
+                    <li>Waiting time until k events occur in a Poisson process</li>
+                    <li>Rainfall amounts</li>
+                    <li>Insurance claim sizes</li>
+                    <li>Service times in queuing theory</li>
+                `,
+                beta: `
+                    <li>Modeling probabilities or proportions</li>
+                    <li>Success rates</li>
+                    <li>Percentage of time spent on tasks</li>
+                    <li>Prior distributions in Bayesian statistics</li>
+                    <li>Modeling random variables constrained to [0,1]</li>
+                `
+            };
+            
+            return applications[distributionType] || '';
+        }
+        
+        // Helper function to get property formulas
+        function getPropertyFormula(distributionType, property) {
+            const formulas = {
+                bernoulli: {
+                    mean: 'E(X) = p',
+                    variance: 'Var(X) = p(1-p)',
+                    skewness: '(1-2p)/√(p(1-p))'
+                },
+                binomial: {
+                    mean: 'E(X) = np',
+                    variance: 'Var(X) = np(1-p)',
+                    skewness: '(1-2p)/√(np(1-p))'
+                },
+                poisson: {
+                    mean: 'E(X) = λ',
+                    variance: 'Var(X) = λ',
+                    skewness: '1/√λ'
+                },
+                geometric: {
+                    mean: 'E(X) = 1/p',
+                    variance: 'Var(X) = (1-p)/p²',
+                    skewness: '(2-p)/√(1-p)'
+                },
+                normal: {
+                    mean: 'E(X) = μ',
+                    variance: 'Var(X) = σ²',
+                    skewness: '0 (symmetric)'
+                },
+                uniform: {
+                    mean: 'E(X) = (a+b)/2',
+                    variance: 'Var(X) = (b-a)²/12',
+                    skewness: '0 (symmetric)'
+                },
+                exponential: {
+                    mean: 'E(X) = 1/λ',
+                    variance: 'Var(X) = 1/λ²',
+                    skewness: '2 (always right-skewed)'
+                },
+                gamma: {
+                    mean: 'E(X) = α/β',
+                    variance: 'Var(X) = α/β²',
+                    skewness: '2/√α'
+                },
+                beta: {
+                    mean: 'E(X) = α/(α+β)',
+                    variance: 'Var(X) = αβ/((α+β)²(α+β+1))',
+                    skewness: '2(β-α)√(α+β+1)/((α+β+2)√(αβ))'
+                }
+            };
+            
+            return formulas[distributionType]?.[property] || 'Not available';
+        }
+        
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>
